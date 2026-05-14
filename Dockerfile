@@ -1,75 +1,72 @@
-# --- Build and Runtime ---
-# 使用预构建的基础镜像（运维已推送），包含 git、ca-certificates、tzdata 和所有 Go 依赖
-# 单阶段构建：编译和运行使用同一个镜像，避开网络依赖下载问题
-FROM swr.cn-lflt-1.enncloud.cn/base/multica-base:1.26
+# --- Dependencies ---
+FROM swr.cn-lflt-1.enncloud.cn/base/node:22-alpine AS deps
 
-# Go proxy 和 GOSUMDB 已经在基础镜像中设置
+RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
 WORKDIR /app
 
-# 复制源代码（依赖已经预下载，只需要复制代码）
-COPY server/ ./server/
+# Copy workspace config and all package.json files for dependency resolution
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json .npmrc ./
+COPY apps/web/package.json apps/web/
+COPY packages/core/package.json packages/core/
+COPY packages/ui/package.json packages/ui/
+COPY packages/views/package.json packages/views/
+COPY packages/tsconfig/package.json packages/tsconfig/
+COPY packages/eslint-config/package.json packages/eslint-config/
 
-# 构建二进制文件
-ARG VERSION=dev
-ARG COMMIT=unknown
+RUN pnpm install --frozen-lockfile
 
-# 构建 server（使用预下载的依赖）
-RUN cd server && \
-    go version && \
-    CGO_ENABLED=0 go build \
-    -ldflags "-s -w -X main.version=${VERSION} -X main.commit=${COMMIT}" \
-    -o bin/server \
-    ./cmd/server
+# --- Build ---
+FROM swr.cn-lflt-1.enncloud.cn/base/node:22-alpine AS builder
 
-# 构建 multica CLI
-RUN cd server && \
-    CGO_ENABLED=0 go build \
-    -ldflags "-s -w -X main.version=${VERSION} -X main.commit=${COMMIT}" \
-    -o bin/multica \
-    ./cmd/multica
+RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 
-# 构建 migrate 工具
-RUN cd server && \
-    CGO_ENABLED=0 go build \
-    -ldflags "-s -w" \
-    -o bin/migrate \
-    ./cmd/migrate
+WORKDIR /app
 
-# 复制编译好的二进制文件到根目录，然后清理 server 目录
-# 原因：COPY server/ ./server/ 创建了 server/ 目录，无法直接移动 server/bin/ 到根目录
-# 解决：先把 binaries 复制到临时目录，删除 server 目录，再移回来
-RUN cp server/bin/server /tmp/ && \
-    cp server/bin/multica /tmp/ && \
-    cp server/bin/migrate /tmp/ && \
-    rm -rf server && \
-    mv /tmp/server . && \
-    mv /tmp/multica . && \
-    mv /tmp/migrate . && \
-    chmod +x server multica migrate
+# Copy installed dependencies (preserves pnpm symlink structure)
+COPY --from=deps /app ./
 
-# 复制数据库迁移文件
-COPY server/migrations/ ./migrations/
+# Copy source
+COPY package.json turbo.json pnpm-workspace.yaml ./
+COPY apps/web/ apps/web/
+COPY packages/ packages/
 
-# 复制启动脚本
-COPY docker/entrypoint.sh .
+# Re-link after source overlay (fixes any symlinks overwritten by COPY)
+RUN pnpm install --frozen-lockfile --offline
 
-# 修复 Windows 换行符并设置可执行权限
-RUN sed -i 's/\r$//' entrypoint.sh && chmod +x entrypoint.sh
+# Set build-time env: tells Next.js rewrites to proxy API calls to the backend service
+ARG REMOTE_API_URL=http://backend:8080
+ARG NEXT_PUBLIC_WS_URL
+ARG NEXT_PUBLIC_APP_VERSION=dev
+ENV REMOTE_API_URL=$REMOTE_API_URL
+ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
+ENV NEXT_PUBLIC_APP_VERSION=$NEXT_PUBLIC_APP_VERSION
+ENV STANDALONE=true
 
-EXPOSE 8080
+# Build the web app (standalone output for minimal runtime)
+RUN pnpm --filter @multica/web build
 
-ENTRYPOINT ["./entrypoint.sh"]
+# --- Runtime ---
+FROM swr.cn-lflt-1.enncloud.cn/base/node:22-alpine AS runner
 
-# 构建信息标签
-ARG VERSION=dev
-ARG COMMIT=unknown
-ARG BUILD_DATE=
-ARG VCS_REF=
+WORKDIR /app
 
-LABEL maintainer="devops@enn.com"
-LABEL description="Multica Server (Single-stage build)"
-LABEL version="${VERSION}"
-LABEL commit="${COMMIT}"
-LABEL build-date="${BUILD_DATE}"
-LABEL vcs-ref="${VCS_REF}"
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy standalone output (includes traced node_modules)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+# Copy static files (not included in standalone)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+# Copy public assets
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+
+USER nextjs
+
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+CMD ["node", "apps/web/server.js"]
