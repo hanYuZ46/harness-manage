@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@multica/ui/components/ui/sonner";
 import { cn } from "@multica/ui/lib/utils";
 import { WebProviders } from "@/components/web-providers";
-import { getPageTitle } from "@/utils/page-title";
+import { getPageTitle } from "@/features/landing/utils/page-title";
 import {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,

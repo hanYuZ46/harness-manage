@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPageTitle } from "@/utils/page-title";
+import { getPageTitle } from "@/features/landing/utils/page-title";
 import { MulticaLanding } from "@/features/landing/components/multica-landing";
 
 export const metadata: Metadata = {
