@@ -38,11 +38,15 @@ RUN cd server && \
 
 # 复制编译好的二进制文件到根目录，然后清理 server 目录
 # 原因：COPY server/ ./server/ 创建了 server/ 目录，无法直接移动 server/bin/ 到根目录
-RUN cp server/bin/server . && \
-    cp server/bin/multica . && \
-    cp server/bin/migrate . && \
-    chmod +x server multica migrate && \
-    rm -rf server
+# 解决：先把 binaries 复制到临时目录，删除 server 目录，再移回来
+RUN cp server/bin/server /tmp/ && \
+    cp server/bin/multica /tmp/ && \
+    cp server/bin/migrate /tmp/ && \
+    rm -rf server && \
+    mv /tmp/server . && \
+    mv /tmp/multica . && \
+    mv /tmp/migrate . && \
+    chmod +x server multica migrate
 
 # 复制数据库迁移文件
 COPY server/migrations/ ./migrations/
