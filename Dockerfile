@@ -1,6 +1,10 @@
 # --- Build stage ---
 FROM swr.cn-lflt-1.enncloud.cn/base/golang:1.26-alpine AS builder
 
+# Configure Go module proxy for China
+ENV GOPROXY=https://goproxy.cn,direct
+ENV GOSUMDB=sum.golang.google.cn
+
 RUN apk add --no-cache git
 
 WORKDIR /src
