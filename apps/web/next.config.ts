@@ -24,7 +24,7 @@ const allowedDevOrigins = process.env.ALLOWED_ORIGINS
           return host;
         }
       })
-      .filter(Boolean)
+      .filter((x): x is string => Boolean(x))  // Type guard to filter out undefined
   : undefined;
 
 const nextConfig: NextConfig = {
