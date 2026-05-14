@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
+import { getPageTitle } from "@/utils/page-title";
 import { MulticaLanding } from "@/features/landing/components/multica-landing";
 
 export const metadata: Metadata = {
-  title: "Homepage",
+  title: getPageTitle("Homepage"),
   description:
-    "Multica — open-source platform that turns coding agents into real teammates. Assign tasks, track progress, compound skills.",
+    "Harness Manager — multi-agent collaboration platform that turns AI agents into real teammates. Assign tasks, track progress, compound skills.",
   openGraph: {
-    title: "Multica — Project Management for Human + Agent Teams",
+    title: "Harness Manager — Multi-Agent Collaboration Platform",
     description:
-      "Manage your human + agent workforce in one place.",
+      "Manage your AI agent workforce in one place.",
     url: "/homepage",
   },
   alternates: {
