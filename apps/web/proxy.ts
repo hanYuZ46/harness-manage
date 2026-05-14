@@ -50,6 +50,11 @@ export function proxy(req: NextRequest) {
   const hasSession = req.cookies.has("multica_logged_in");
   const lastSlug = req.cookies.get("last_workspace_slug")?.value;
 
+  // --- Homepage redirect: unauthenticated users go to login ---
+  if (pathname === "/" && !hasSession) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
   // --- Legacy URL redirect: /issues/... → /{slug}/issues/... ---
   // Old bookmarks and clients that hit us before the slug migration would
   // otherwise 404 since the route moved under [workspaceSlug].
