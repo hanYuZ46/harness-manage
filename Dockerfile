@@ -37,9 +37,10 @@ RUN cd server && \
     ./cmd/migrate
 
 # 复制编译好的二进制文件到根目录（entrypoint.sh 期望的路径）
-RUN cp server/bin/server ./ && \
-    cp server/bin/multica ./ && \
-    cp server/bin/migrate ./ && \
+# 使用 mv 而不是 cp，避免与已存在的目录冲突
+RUN mv server/bin/server ./ && \
+    mv server/bin/multica ./ && \
+    mv server/bin/migrate ./ && \
     rm -rf server
 
 # 复制数据库迁移文件
