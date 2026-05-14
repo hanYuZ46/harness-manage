@@ -8,15 +8,20 @@ config({ path: resolve(__dirname, "../../.env") });
 const remoteApiUrl = process.env.REMOTE_API_URL || "http://localhost:8080";
 const docsUrl = process.env.DOCS_URL || "http://localhost:4000";
 
-// Parse hostnames from CORS_ALLOWED_ORIGINS so that Next.js dev server
+// Parse hostnames from ALLOWED_ORIGINS so that Next.js dev server
 // allows cross-origin HMR / webpack requests (e.g. from Tailscale IPs).
-const allowedDevOrigins = process.env.CORS_ALLOWED_ORIGINS
-  ? process.env.CORS_ALLOWED_ORIGINS.split(",")
+const allowedDevOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
       .map((origin) => {
+        const trimmed = origin.trim();
+        if (trimmed === "*") return "*"; // Allow all origins
         try {
-          return new URL(origin.trim()).host;
+          const url = new URL(trimmed);
+          return url.hostname; // Extract hostname (e.g., "localhost" or "10.2.218.16")
         } catch {
-          return origin.trim();
+          // If not a valid URL, try to parse as "host:port"
+          const [host] = trimmed.split(":");
+          return host;
         }
       })
       .filter(Boolean)
