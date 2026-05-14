@@ -35,7 +35,7 @@ COPY packages/ packages/
 RUN pnpm install --frozen-lockfile --offline
 
 # Set build-time env: tells Next.js rewrites to proxy API calls to the backend service
-ARG REMOTE_API_URL=http://backend:8080
+ARG REMOTE_API_URL=https://harness-manager.dev.ennew.com
 ARG NEXT_PUBLIC_WS_URL
 ARG NEXT_PUBLIC_APP_VERSION=dev
 ENV REMOTE_API_URL=$REMOTE_API_URL
@@ -57,11 +57,23 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Copy standalone output (includes traced node_modules)
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+# 先复制到临时位置，修复权限后再移动
+COPY --from=builder /app/apps/web/.next/standalone /tmp/standalone
+RUN chown -R nextjs:nodejs /tmp/standalone && \
+    cp -a /tmp/standalone/. /app/ && \
+    rm -rf /tmp/standalone
+
 # Copy static files (not included in standalone)
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder /app/apps/web/.next/static /tmp/static
+RUN chown -R nextjs:nodejs /tmp/static && \
+    cp -a /tmp/static /app/apps/web/.next/ && \
+    rm -rf /tmp/static
+
 # Copy public assets
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+COPY --from=builder /app/apps/web/public /tmp/public
+RUN chown -R nextjs:nodejs /tmp/public && \
+    cp -a /tmp/public /app/apps/web/ && \
+    rm -rf /tmp/public
 
 USER nextjs
 
