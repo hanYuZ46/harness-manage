@@ -1,10 +1,11 @@
-# --- Build stage ---
-# 使用预构建的基础镜像（运维已推送），已经包含 git、ca-certificates、tzdata 和所有 Go 依赖
-FROM swr.cn-lflt-1.enncloud.cn/base/multica-base:1.26 AS builder
+# --- Build and Runtime ---
+# 使用预构建的基础镜像（运维已推送），包含 git、ca-certificates、tzdata 和所有 Go 依赖
+# 单阶段构建：编译和运行使用同一个镜像，避开网络依赖下载问题
+FROM swr.cn-lflt-1.enncloud.cn/base/multica-base:1.26
 
 # Go proxy 和 GOSUMDB 已经在基础镜像中设置
 
-WORKDIR /src
+WORKDIR /app
 
 # 复制源代码（依赖已经预下载，只需要复制代码）
 COPY server/ ./server/
@@ -35,20 +36,6 @@ RUN cd server && \
     -o bin/migrate \
     ./cmd/migrate
 
-# --- Runtime stage ---
-# 使用轻量级 Alpine 镜像作为运行时
-FROM swr.cn-lflt-1.enncloud.cn/base/alpine:3.21
-
-# 安装运行时依赖（ca-certificates 和 tzdata 也可以复用，但保持镜像轻量）
-RUN apk add --no-cache ca-certificates tzdata
-
-WORKDIR /app
-
-# 从构建阶段复制二进制文件
-COPY --from=builder /src/server/bin/server .
-COPY --from=builder /src/server/bin/multica .
-COPY --from=builder /src/server/bin/migrate .
-
 # 复制数据库迁移文件
 COPY server/migrations/ ./migrations/
 
@@ -69,7 +56,7 @@ ARG BUILD_DATE=
 ARG VCS_REF=
 
 LABEL maintainer="devops@enn.com"
-LABEL description="Multica Server"
+LABEL description="Multica Server (Single-stage build)"
 LABEL version="${VERSION}"
 LABEL commit="${COMMIT}"
 LABEL build-date="${BUILD_DATE}"
