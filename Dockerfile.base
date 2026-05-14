@@ -1,0 +1,39 @@
+# --- Multica Base Image ---
+# 预构建基础镜像：预装所有依赖，只需构建一次
+# 日常构建时直接使用此镜像，无需重新下载依赖
+
+FROM swr.cn-lflt-1.enncloud.cn/base/golang:1.26-alpine
+
+# Configure Go module proxy for China
+ENV GOPROXY=https://goproxy.cn,direct
+ENV GOSUMDB=sum.golang.google.cn
+
+# Install essential tools
+# - git: Go build dependencies
+# - ca-certificates: HTTPS/TLS support
+# - tzdata: Timezone support
+RUN apk add --no-cache \
+    git \
+    ca-certificates \
+    tzdata
+
+WORKDIR /workspace
+
+# 预下载所有 Go 依赖（依赖 go.mod 和 go.sum）
+# 这样日常构建时不需要重新下载依赖
+COPY server/go.mod server/go.sum ./server/
+RUN cd server && go mod download && go mod verify
+
+# 清理 Go mod 缓存以减小镜像大小（可选，保留缓存能加快后续构建）
+# RUN go clean -modcache
+
+LABEL maintainer="devops@enn.com"
+LABEL description="Multica Base: Golang 1.26 + Alpine + git + pre-downloaded dependencies"
+LABEL version="1.26"
+
+# 显示已安装的工具版本（用于验证）
+RUN echo "=== Installed Tools ===" && \
+    echo "Go version: $(go version)" && \
+    echo "Git version: $(git --version)" && \
+    echo "Alpine version: $(cat /etc/alpine-release)" && \
+    echo "Go modules cached: $(go list -m -json all | wc -l) packages"
