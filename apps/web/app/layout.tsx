@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@multica/ui/components/ui/sonner";
 import { cn } from "@multica/ui/lib/utils";
 import { WebProviders } from "@/components/web-providers";
+import { getPageTitle } from "@/utils/page-title";
 import {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
@@ -74,19 +75,15 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.multica.ai"),
-  title: {
-    default: "Multica — Project Management for Human + Agent Teams",
-    template: "%s | Multica",
-  },
-  description:
-    "Open-source platform that turns coding agents into real teammates. Assign tasks, track progress, compound skills.",
+  title: getPageTitle(),
+  description: "多 Agent 协作平台 - 智能协作，高效交付",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: ["/favicon.svg"],
   },
   openGraph: {
     type: "website",
-    siteName: "Multica",
+    siteName: "Harness Manager",
     locale: "en_US",
   },
   twitter: {
