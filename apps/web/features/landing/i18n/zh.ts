@@ -219,7 +219,7 @@ export function createZhDict(allowSignup: boolean): LandingDict {
 
   footer: {
     tagline:
-      "\u4eba\u7c7b + 智能体 \u56e2\u961f\u7684\u9879\u76ee\u7ba1\u7406\u3002\u5f00\u6e90\u3001\u53ef\u81ea\u6258\u7ba1\u3001\u4e3a\u672a\u6765\u7684\u5de5\u4f5c\u65b9\u5f0f\u800c\u5efa\u3002",
+      "多 Agent 协作平台的智能管理。开源、可自托管、为未来的工作方式而建。",
     cta: "\u5f00\u59cb\u4f7f\u7528",
     groups: {
       product: {
@@ -248,21 +248,21 @@ export function createZhDict(allowSignup: boolean): LandingDict {
         ],
       },
     },
-    copyright: "\u00a9 {year} Multica. \u4fdd\u7559\u6240\u6709\u6743\u5229\u3002",
+    copyright: "\u00a9 {year} Harness Manager. \u4fdd\u7559\u6240\u6709\u6743\u5229\u3002",
   },
 
   about: {
-    title: "\u5173\u4e8e Multica",
+    title: "\u5173\u4e8e Harness Manager",
     nameLine: {
-      prefix: "Multica\u2014\u2014",
-      mul: "Mul",
-      tiplexed: "tiplexed ",
-      i: "I",
-      nformationAnd: "nformation and ",
-      c: "C",
-      omputing: "omputing ",
-      a: "A",
-      gent: "gent\u3002",
+      prefix: "Harness Manager\u2014\u2014",
+      mul: "多-Agent",
+      tiplexed: "协作",
+      i: "",
+      nformationAnd: "",
+      c: "",
+      omputing: "",
+      a: "",
+      gent: "平台",
     },
     paragraphs: [
       "\u8fd9\u4e2a\u540d\u5b57\u662f\u5728\u5411 20 \u4e16\u7eaa 60 \u5e74\u4ee3\u5177\u6709\u5f00\u521b\u610f\u4e49\u7684\u64cd\u4f5c\u7cfb\u7edf Multics \u81f4\u610f\u3002Multics \u9996\u521b\u4e86\u5206\u65f6\u7cfb\u7edf\uff0c\u8ba9\u591a\u4e2a\u7528\u6237\u80fd\u591f\u5171\u4eab\u540c\u4e00\u53f0\u673a\u5668\uff0c\u540c\u65f6\u53c8\u50cf\u5404\u81ea\u72ec\u5360\u5b83\u4e00\u6837\u4f7f\u7528\u3002Unix \u5219\u662f\u5728\u6709\u610f\u7b80\u5316 Multics \u7684\u57fa\u7840\u4e0a\u8bde\u751f\u7684\uff0c\u5f3a\u8c03\u4e00\u4e2a\u7528\u6237\u3001\u4e00\u4e2a\u4efb\u52a1\u3001\u4e00\u79cd\u4f18\u96c5\u7684\u54f2\u5b66\u3002",

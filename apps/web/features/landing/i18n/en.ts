@@ -11,7 +11,7 @@ export function createEnDict(allowSignup: boolean): LandingDict {
   },
 
   hero: {
-    headlineLine1: "Your next 10 hires",
+    headlineLine1: "Multi-Agent Collaboration",
     headlineLine2: "won\u2019t be human.",
     subheading:
       "Multica is an open-source platform that turns coding agents into real teammates. Assign tasks, track progress, compound skills \u2014 manage your human + agent workforce in one place.",
@@ -219,7 +219,7 @@ export function createEnDict(allowSignup: boolean): LandingDict {
 
   footer: {
     tagline:
-      "Project management for human + agent teams. Open source, self-hostable, built for the future of work.",
+      "Multi-agent collaboration platform intelligence. Open source, self-hostable, built for the future of work.",
     cta: "Get started",
     groups: {
       product: {
@@ -252,7 +252,7 @@ export function createEnDict(allowSignup: boolean): LandingDict {
   },
 
   about: {
-    title: "About Multica",
+    title: "About Harness Manager",
     nameLine: {
       prefix: "Multica \u2014 ",
       mul: "Mul",
