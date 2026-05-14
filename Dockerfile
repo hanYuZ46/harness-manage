@@ -36,11 +36,12 @@ RUN cd server && \
     -o bin/migrate \
     ./cmd/migrate
 
-# 复制编译好的二进制文件到根目录（entrypoint.sh 期望的路径）
-# 使用 mv 而不是 cp，避免与已存在的目录冲突
-RUN mv server/bin/server ./ && \
-    mv server/bin/multica ./ && \
-    mv server/bin/migrate ./ && \
+# 复制编译好的二进制文件到根目录，然后清理 server 目录
+# 原因：COPY server/ ./server/ 创建了 server/ 目录，无法直接移动 server/bin/ 到根目录
+RUN cp server/bin/server . && \
+    cp server/bin/multica . && \
+    cp server/bin/migrate . && \
+    chmod +x server multica migrate && \
     rm -rf server
 
 # 复制数据库迁移文件
