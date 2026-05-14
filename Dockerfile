@@ -36,7 +36,7 @@ RUN pnpm install --frozen-lockfile --offline
 
 # Set build-time env: tells Next.js rewrites to proxy API calls to the backend service
 ARG REMOTE_API_URL=https://harness-manager.dev.ennew.com
-ARG NEXT_PUBLIC_WS_URL
+ARG NEXT_PUBLIC_WS_URL=wss://harness-manager.dev.ennew.com/ws
 ARG NEXT_PUBLIC_APP_VERSION=dev
 ENV REMOTE_API_URL=$REMOTE_API_URL
 ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
