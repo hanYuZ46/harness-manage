@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
+import { getPageTitle } from "@/utils/page-title";
 import { AboutPageClient } from "@/features/landing/components/about-page-client";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: getPageTitle("About"),
   description:
-    "Learn about Multica — multiplexed information and computing agent. An open-source project management platform for human + agent teams.",
+    "Learn about Harness Manager — Multi-Agent collaboration platform. An open-source project management platform for AI agent teams.",
   openGraph: {
-    title: "About Multica",
+    title: "About Harness Manager",
     description:
-      "The story behind Multica and why we're building project management for human + agent teams.",
+      "The story behind Harness Manager and why we're building project management for multi-Agent teams.",
     url: "/about",
   },
   alternates: {

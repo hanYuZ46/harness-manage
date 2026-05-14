@@ -4,14 +4,16 @@ import Link from "next/link";
 import { MulticaIcon } from "@multica/ui/components/common/multica-icon";
 import { cn } from "@multica/ui/lib/utils";
 import { useAuthStore } from "@multica/core/auth";
-import { captureDownloadIntent } from "@multica/core/analytics";
 import { XMark, GitHubMark, githubUrl, twitterUrl } from "./shared";
 import { useLocale, locales, localeLabels } from "../i18n";
 
 export function LandingFooter() {
   const { t, locale, setLocale } = useLocale();
   const user = useAuthStore((s) => s.user);
-  const groups = Object.values(t.footer.groups);
+  const groups = Object.values(t.footer.groups).map((group) => ({
+    ...group,
+    links: group.links.filter((link) => link.href !== "/download"),
+  }));
 
   return (
     <footer className="bg-[#0a0d12] text-white">
@@ -23,7 +25,7 @@ export function LandingFooter() {
             <Link href="#product" className="flex items-center gap-3">
               <MulticaIcon className="size-5 text-white" noSpin />
               <span className="text-[18px] font-semibold tracking-[0.04em] lowercase">
-                multica
+                harness-manager
               </span>
             </Link>
             <p className="mt-4 max-w-[300px] text-[14px] leading-[1.7] text-white/50 sm:text-[15px]">
@@ -72,11 +74,6 @@ export function LandingFooter() {
                         {...(link.href.startsWith("http")
                           ? { target: "_blank", rel: "noreferrer" }
                           : {})}
-                        onClick={
-                          link.href === "/download"
-                            ? () => captureDownloadIntent("landing_footer")
-                            : undefined
-                        }
                         className="text-[14px] text-white/50 transition-colors hover:text-white"
                       >
                         {link.label}
@@ -124,7 +121,7 @@ export function LandingFooter() {
               noSpin
             />
             <span className="font-[family-name:var(--font-serif)] text-[clamp(6rem,22vw,16rem)] font-normal leading-[0.82] tracking-[-0.04em] text-white lowercase">
-              multica
+              harness-manager
             </span>
           </div>
         </div>
