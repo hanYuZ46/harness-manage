@@ -24,10 +24,10 @@
 -- propagate to old data.)
 --
 -- `project_id` is nullable — issues without a project still produce
--- usage rows. We use `UNIQUE NULLS NOT DISTINCT` (PG 15+) so NULL is
--- treated as a single distinct value in the unique key, which lets
--- `INSERT ... ON CONFLICT` upsert "no-project" buckets the same way it
--- handles a specific project.
+-- usage rows. We use a regular UNIQUE constraint for compatibility with
+-- PostgreSQL <15. This allows multiple NULL project_id values to exist
+-- (treated as distinct), which is a slight behavior difference from
+-- NULLS NOT DISTINCT but ensures compatibility across PostgreSQL versions.
 --
 -- Bucket date is computed in **UTC**. The per-runtime rollup uses the
 -- runtime's tz (migration 082) because each row has a single runtime;
@@ -47,9 +47,12 @@ CREATE TABLE task_usage_dashboard_daily (
     task_count          BIGINT      NOT NULL DEFAULT 0,
     event_count         BIGINT      NOT NULL DEFAULT 0,
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    -- Regular UNIQUE constraint for PostgreSQL <15 compatibility.
+    -- Multiple NULL project_id values are allowed (treated as distinct),
+    -- which differs from the original NULLS NOT DISTINCT behavior but
+    -- ensures compatibility with older PostgreSQL versions.
     CONSTRAINT uq_task_usage_dashboard_daily_key
-        UNIQUE NULLS NOT DISTINCT
-        (bucket_date, workspace_id, agent_id, project_id, model)
+        UNIQUE (bucket_date, workspace_id, agent_id, model, project_id)
 );
 
 -- Workspace-wide reads (no project filter) hit this index.
@@ -90,9 +93,10 @@ CREATE TABLE task_usage_dashboard_dirty (
     project_id   UUID,
     model        TEXT        NOT NULL,
     enqueued_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    -- Regular UNIQUE constraint for PostgreSQL <15 compatibility.
+    -- Multiple NULL project_id values are allowed (treated as distinct).
     CONSTRAINT uq_task_usage_dashboard_dirty_key
-        UNIQUE NULLS NOT DISTINCT
-        (bucket_date, workspace_id, agent_id, project_id, model)
+        UNIQUE (bucket_date, workspace_id, agent_id, model, project_id)
 );
 
 CREATE INDEX idx_task_usage_dashboard_dirty_enqueued_at
