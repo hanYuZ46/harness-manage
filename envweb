@@ -1,0 +1,17 @@
+ENV=DEV
+NODE_ENV=development
+APP_ENV=development
+REMOTE_API_URL=https://harness-manager.dev.ennew.com
+NEXT_PUBLIC_WS_URL=wss://harness-manager.dev.ennew.com/ws
+NEXT_PUBLIC_APP_VERSION=1.0.0
+PORT=3000
+HOSTNAME=0.0.0.0
+STANDALONE=true
+TENANT_ID=1369923265280311297
+APP_ID=harness-manager-web
+MIDDLEWARE_ENV=XAXZ-QYZNT-DEV
+APM_COLLECTOR_KAFKA_BOOTSERVERS=apm-kafka.dev.ennew.com:9092
+APM.COLLECTOR.BACKEND_REST_SERVICE=apm-server-rest.dev.ennew.com
+ELK_KAFKA_HOSTS=rdfa-log-kafka.dev.ennew.com:9092
+ENABLE_IAST=TRUE
+testKey=testVal
