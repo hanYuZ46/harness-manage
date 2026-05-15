@@ -73,11 +73,18 @@ export function ActorAvatar({
     avatar
   );
 
+  // AI ring for agent avatars - gradient ring using ::before pseudo-element
+  const withAiRing = actorType === "agent" && !wrapDot ? (
+    <span className="relative inline-flex before:absolute before:-inset-0.5 before:rounded-full before:border-2 before:border-[var(--ai-gradient)]">
+      {avatar}
+    </span>
+  ) : dotted;
+
   if (!enableHoverCard) {
-    return dotted;
+    return withAiRing;
   }
   if (actorType === "agent") {
-    return <AgentAvatarHoverCard agentId={actorId}>{dotted}</AgentAvatarHoverCard>;
+    return <AgentAvatarHoverCard agentId={actorId}>{withAiRing}</AgentAvatarHoverCard>;
   }
   if (actorType === "member") {
     return <MemberAvatarHoverCard userId={actorId}>{dotted}</MemberAvatarHoverCard>;
