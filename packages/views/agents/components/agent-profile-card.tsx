@@ -18,6 +18,7 @@ import { HealthIcon } from "../../runtimes/components/shared";
 import { availabilityConfig } from "../presence";
 import { VisibilityBadge } from "./visibility-badge";
 import { useT } from "../../i18n";
+import { cn } from "@multica/ui/lib/utils";
 
 interface AgentProfileCardProps {
   agentId: string;
@@ -67,7 +68,12 @@ export function AgentProfileCard({ agentId }: AgentProfileCardProps) {
     // `group` enables the hover-only Detail link on the top-right —
     // it fades in only when the user is hovering the card chrome,
     // staying out of the way during a quick glance.
-    <div className="group flex flex-col gap-3 text-left">
+    <div className={cn(
+      "group flex flex-col gap-3 text-left",
+      "rounded-lg border p-4",
+      "border-[var(--ai-blue)]/20",
+      "bg-gradient-to-br from-[var(--ai-blue)]/5 via-[var(--ai-purple)]/5 to-[var(--ai-aqua)]/5"
+    )}>
       {/* Header — avatar + name + availability on the left, "Detail →" link
           on the right (hover-only). Card stays minimal: only the 3-state
           availability dot is surfaced here; last-task state lives in the
@@ -83,7 +89,7 @@ export function AgentProfileCard({ agentId }: AgentProfileCardProps) {
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <p className="truncate text-sm font-semibold">{agent.name}</p>
+            <p className="truncate bg-[var(--ai-gradient)] bg-clip-text text-transparent font-semibold">{agent.name}</p>
             {!isArchived && <VisibilityBadge value={agent.visibility} compact />}
             {isArchived && (
               <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
