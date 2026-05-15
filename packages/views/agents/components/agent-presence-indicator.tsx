@@ -4,6 +4,7 @@ import { Skeleton } from "@multica/ui/components/ui/skeleton";
 import type { AgentPresenceDetail } from "@multica/core/agents";
 import { availabilityConfig, workloadConfig } from "../presence";
 import { useT } from "../../i18n";
+import { cn } from "@multica/ui/lib/utils";
 
 interface PresenceIndicatorProps {
   // null/undefined = still loading. Caller passes the detail computed at
@@ -65,7 +66,14 @@ export function AgentPresenceIndicator({
         className="inline-flex items-center"
         title={`${availabilityLabel}${detail.workload !== "idle" ? ` · ${workloadLabel}` : ""}`}
       >
-        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${av.dotClass}`} />
+        <span
+          className={cn(
+            "h-1.5 w-1.5 shrink-0 rounded-full",
+            detail.availability === "online"
+              ? "bg-[var(--ai-blue)]"
+              : av.dotClass
+          )}
+        />
       </span>
     );
   }
@@ -74,7 +82,14 @@ export function AgentPresenceIndicator({
     <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
       {/* Availability — dot + label. Single dimension, single colour. */}
       <span className="inline-flex items-center gap-1.5">
-        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${av.dotClass}`} />
+        <span
+          className={cn(
+            "h-1.5 w-1.5 shrink-0 rounded-full",
+            detail.availability === "online"
+              ? "bg-[var(--ai-blue)]"
+              : av.dotClass
+          )}
+        />
         <span className={`text-xs ${av.textClass}`}>{availabilityLabel}</span>
       </span>
 
@@ -83,7 +98,13 @@ export function AgentPresenceIndicator({
           its own "Idle" label so the difference between "no presence
           data" (no chip at all) and "agent is idle" (explicit Idle chip)
           is visible. */}
-      <span className="inline-flex items-center gap-1">
+      <span
+        className={cn(
+          "inline-flex items-center gap-1",
+          detail.availability === "online" &&
+            "rounded-md bg-[var(--ai-background)] px-1.5 py-0.5"
+        )}
+      >
         <span className="text-xs text-muted-foreground">·</span>
         <span
           className={`text-xs ${
