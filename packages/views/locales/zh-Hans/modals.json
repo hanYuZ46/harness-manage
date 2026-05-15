@@ -79,7 +79,7 @@
     "repos_selected": "已选"
   },
   "create_issue": {
-    "sr_manual": "新建 issue",
+    "sr_manual": "新建任务",
     "sr_agent": "快速创建 issue",
     "manual_breadcrumb": "手动创建",
     "agent_breadcrumb": "通过智能体创建",

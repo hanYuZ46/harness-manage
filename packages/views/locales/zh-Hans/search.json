@@ -22,7 +22,7 @@
   },
   "commands": {
     "current_theme_aria": "当前主题",
-    "new_issue": "新建 issue",
+    "new_issue": "新建任务",
     "new_project": "新建项目",
     "copy_issue_link": "复制 issue 链接",
     "copy_identifier": "复制标识符 ({{identifier}})",
