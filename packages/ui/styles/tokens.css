@@ -96,6 +96,13 @@
     --scrollbar-thumb: oklch(0 0 0 / 10%);
     --scrollbar-thumb-hover: oklch(0 0 0 / 18%);
     --scrollbar-track: transparent;
+    /* AI Colors — used across AI functionality */
+    --ai-blue: #4B7AFF;
+    --ai-purple: #AF52DE;
+    --ai-aqua: #32ACE6;
+    --ai-gradient: linear-gradient(135deg, #4B7AFF 0%, #AF52DE 50%, #32ACE6 100%);
+    --ai-background: rgba(75, 122, 255, 0.08);
+    --ai-ambient: rgba(175, 82, 222, 0.3);
 }
 
 .dark {
@@ -142,4 +149,7 @@
     --scrollbar-thumb: oklch(1 0 0 / 8%);
     --scrollbar-thumb-hover: oklch(1 0 0 / 18%);
     --scrollbar-track: transparent;
+    /* AI Colors — Dark mode variants */
+    --ai-background: rgba(75, 122, 255, 0.15);
+    --ai-ambient: rgba(175, 82, 222, 0.4);
 }
