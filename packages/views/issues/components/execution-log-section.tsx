@@ -133,7 +133,7 @@ export function ExecutionLogSection({ issueId }: ExecutionLogSectionProps) {
         />
         {activeTasks.length > 0 && (
           <span className="ml-auto inline-flex items-center gap-1 text-info">
-            <span className="h-1.5 w-1.5 rounded-full bg-info animate-pulse" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--ai-gradient)] animate-pulse" />
             <span className="font-mono tabular-nums">{activeTasks.length}</span>
           </span>
         )}
@@ -414,7 +414,7 @@ function RowShell({
   // `relative` so the absolute-positioned RowActions slot anchors to this
   // row instead of an outer container.
   return (
-    <div className="group relative flex items-center gap-2 rounded px-1 py-1.5 transition-colors hover:bg-accent/40">
+    <div className="group relative flex items-center gap-2 rounded border-l-2 border-[var(--ai-gradient)] pl-4 pr-1 py-1.5 transition-colors hover:bg-accent/40">
       {task.agent_id ? (
         <ActorAvatar
           actorType="agent"
@@ -423,7 +423,7 @@ function RowShell({
           enableHoverCard
         />
       ) : (
-        <span className="inline-block h-5 w-5 shrink-0 rounded-full bg-muted" />
+        <span className="inline-block h-5 w-5 shrink-0 rounded-full bg-[var(--ai-gradient)]" />
       )}
       {children}
     </div>
