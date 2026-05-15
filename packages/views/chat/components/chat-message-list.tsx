@@ -200,7 +200,7 @@ function AssistantMessage({
   }
 
   return (
-    <div className="w-full space-y-1.5">
+    <div className="w-full space-y-1.5 rounded-lg bg-[var(--ai-background)] p-3 border border-[var(--ai-blue)]/10">
       {timeline.length > 0 ? (
         <TimelineView items={timeline} />
       ) : (
@@ -517,7 +517,7 @@ function ToolCallRow({ item }: { item: ChatTimelineItem }) {
             !hasInput && "invisible",
           )}
         />
-        <span className="font-medium text-foreground shrink-0">{item.tool}</span>
+        <span className="font-medium bg-[var(--ai-gradient)] bg-clip-text text-transparent shrink-0">{item.tool}</span>
         {summary && <span className="truncate text-muted-foreground">{summary}</span>}
       </CollapsibleTrigger>
       {hasInput && (
