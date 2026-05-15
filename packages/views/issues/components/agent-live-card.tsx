@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Bot, Clock, Loader2, Square } from "lucide-react";
+import { cn } from "@multica/ui/lib/utils";
 import { api } from "@multica/core/api";
 import { useWSEvent, useWSReconnect } from "@multica/core/realtime";
 import type { TaskMessagePayload } from "@multica/core/types/events";
@@ -311,7 +312,12 @@ function SingleAgentLiveCard({ task, items, issueId, agentName }: SingleAgentLiv
   // Queued tasks render with a non-spinning Clock and dimmer accent so the
   // banner reads as "waiting" rather than "working" at a glance.
   return (
-    <div className={isQueued ? "rounded-lg border border-border bg-muted/30" : "rounded-lg border border-info/20 bg-info/5"}>
+    <div className={cn(
+      "rounded-lg border px-3 py-2",
+      isQueued
+        ? "border-border bg-muted/30"
+        : "border-[var(--ai-blue)]/20 bg-[var(--ai-background)] animate-ai-pulse"
+    )}>
       <div className="flex items-center gap-2 px-3 py-2 text-muted-foreground">
         {task.agent_id ? (
           <ActorAvatar actorType="agent" actorId={task.agent_id} size={20} enableHoverCard showStatusDot />
@@ -324,7 +330,7 @@ function SingleAgentLiveCard({ task, items, issueId, agentName }: SingleAgentLiv
           {isQueued ? (
             <Clock className="h-3 w-3 text-muted-foreground shrink-0" />
           ) : (
-            <Loader2 className="h-3 w-3 animate-spin text-info shrink-0" />
+            <Loader2 className="h-3 w-3 animate-spin text-[var(--ai-blue)] shrink-0" />
           )}
           <span className="font-medium text-foreground truncate">
             {isQueued

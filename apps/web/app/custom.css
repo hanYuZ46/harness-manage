@@ -4,6 +4,20 @@
  * @multica/ui/styles/base.css
  * ============================================================================= */
 
+/* AI Color System — ambient pulse animation for active agent cards */
+@keyframes ai-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(175, 82, 222, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(175, 82, 222, 0.1);
+  }
+}
+
+.animate-ai-pulse {
+  animation: ai-pulse 2s ease-in-out infinite;
+}
+
 /* The landing route tree is intentionally always-light (hero/cli/cloud
  * sections use hardcoded dark/light palettes). Shared components rendered
  * inside (e.g. CloudWaitlistExpand on /download) use semantic tokens that
