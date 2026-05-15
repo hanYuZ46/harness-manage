@@ -1,13 +1,13 @@
 {
   "nav": {
     "inbox": "状态通知",
-    "my_issues": "我的 Issue",
-    "issues": "Issue",
+    "my_issues": "我的任务",
+    "issues": "任务管理",
     "projects": "客创单元项目",
     "autopilots": "自进化",
     "agents": "角色智能",
     "usage": "用量",
-    "runtimes": "运行时",
+    "runtimes": "容器管理",
     "skills": "Skill",
     "settings": "设置"
   },
