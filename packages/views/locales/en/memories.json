@@ -5,7 +5,7 @@
   "loading": "Loading...",
   "error": "Failed to load",
   "empty": "No memories yet",
-  "graph_title": "Memory Graph",
+  "graph_title": "Spatial Memory Map",
   "graph_search_placeholder": "Search graph...",
   "graph_error": "Failed to load graph",
   "graph_empty": "No memories in graph",
@@ -35,5 +35,9 @@
   "display": "Display",
   "node_limit": "Node Limit",
   "show_labels": "Show Labels",
-  "memory_types": "Memory Types"
+  "memory_types": "Memory Types",
+  "link_type_semantic": "Semantic",
+  "link_type_temporal": "Temporal",
+  "link_type_entity": "Entity",
+  "link_type_causal": "Causal"
 }

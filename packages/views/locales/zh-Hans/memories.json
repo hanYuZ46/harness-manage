@@ -5,7 +5,7 @@
   "loading": "加载中...",
   "error": "加载失败",
   "empty": "暂无记忆",
-  "graph_title": "记忆图谱",
+  "graph_title": "空间记忆地图",
   "graph_search_placeholder": "搜索图谱...",
   "graph_error": "加载图谱失败",
   "graph_empty": "图谱中没有记忆",
@@ -35,5 +35,9 @@
   "display": "显示",
   "node_limit": "节点限制",
   "show_labels": "显示标签",
-  "memory_types": "记忆类型"
+  "memory_types": "记忆类型",
+  "link_type_semantic": "语义链接",
+  "link_type_temporal": "时间链接",
+  "link_type_entity": "实体链接",
+  "link_type_causal": "因果链接"
 }
