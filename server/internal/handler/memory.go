@@ -152,6 +152,8 @@ func (h *Handler) GetMemoryGraph(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	graphType := queryParams.Get("type")
 	limit := queryParams.Get("limit")
+	q := queryParams.Get("q")
+	tags := queryParams["tags"]
 
 	// Build upstream URL - use v1 API path
 	memoryServiceURL := "https://enn-memory.dev.ennew.com/v1/default/banks/" + url.PathEscape(bankID) + "/graph"
@@ -163,14 +165,20 @@ func (h *Handler) GetMemoryGraph(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add query parameters
-	q := upstreamURL.Query()
+	qParams := upstreamURL.Query()
 	if graphType != "" {
-		q.Set("type", graphType)
+		qParams.Set("type", graphType)
 	}
 	if limit != "" {
-		q.Set("limit", limit)
+		qParams.Set("limit", limit)
 	}
-	upstreamURL.RawQuery = q.Encode()
+	if q != "" {
+		qParams.Set("q", q)
+	}
+	for _, tag := range tags {
+		qParams.Add("tags", tag)
+	}
+	upstreamURL.RawQuery = qParams.Encode()
 
 	// Create upstream request
 	upstreamReq, err := http.NewRequestWithContext(ctx, "GET", upstreamURL.String(), nil)
