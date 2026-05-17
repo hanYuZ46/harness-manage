@@ -113,12 +113,9 @@ export function AgentDetailInspector({
       {/* Tab Switcher */}
       <div className="border-b px-5 py-3">
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "properties" | "memory")}>
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-1">
             <TabsTrigger value="properties">
               {t(($) => $.inspector.section_properties)}
-            </TabsTrigger>
-            <TabsTrigger value="memory">
-              {t(($) => $.inspector.section_cognitive_memory)}
             </TabsTrigger>
           </TabsList>
         </Tabs>

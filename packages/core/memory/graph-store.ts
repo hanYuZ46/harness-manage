@@ -3,6 +3,15 @@ import type { MemoryGraphResponse } from "../types/memory";
 
 export type MemoryGraphViewMode = "graph" | "table" | "timeline";
 
+// Selector hooks for better React re-rendering
+export function useSelectedMemoryTypes() {
+  return useMemoryGraphStore((state) => state.selectedMemoryTypes);
+}
+
+export function useToggleMemoryType() {
+  return useMemoryGraphStore((state) => state.toggleMemoryType);
+}
+
 export interface MemoryGraphState {
   // Data
   graphData: MemoryGraphResponse | null;
@@ -139,12 +148,15 @@ export const useMemoryGraphStore = create<MemoryGraphState>((set, get) => ({
 
   toggleMemoryType: (type) => {
     const { selectedMemoryTypes } = get();
+    console.log('[MemoryStore] toggleMemoryType called:', type, 'current:', selectedMemoryTypes);
     if (selectedMemoryTypes.includes(type)) {
       // If clicking the already selected type, do nothing (keep it selected)
       // This makes it behave like a radio button
+      console.log('[MemoryStore] Type already selected, keeping it');
       return;
     } else {
       // Switch to the new type (radio behavior - only one at a time)
+      console.log('[MemoryStore] Switching to type:', type);
       set({ selectedMemoryTypes: [type] });
     }
   },

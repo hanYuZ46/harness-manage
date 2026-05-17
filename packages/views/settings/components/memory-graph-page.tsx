@@ -7,7 +7,7 @@ import { Card, CardContent } from "@multica/ui/components/ui/card";
 import { useMemoryGraph } from "@multica/core/memory/hooks";
 import { useCurrentWorkspace } from "@multica/core/paths";
 import { useT } from "../../i18n";
-import { useMemoryGraphStore } from "@multica/core/memory/graph-store";
+import { useMemoryGraphStore, useSelectedMemoryTypes, useToggleMemoryType } from "@multica/core/memory/graph-store";
 import { MemoryFilters } from "./memory-filters";
 import { CytoscapeGraph } from "./cytoscape-graph";
 import { MemoryTableView } from "./memory-table-view";
@@ -23,7 +23,9 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
   const { t } = useT("memories");
   const workspace = useCurrentWorkspace();
 
-  // Zustand store state and actions
+  // Use selector hooks for proper re-rendering on state changes
+  const selectedMemoryTypes = useSelectedMemoryTypes();
+  const toggleMemoryType = useToggleMemoryType();
   const {
     graphData,
     searchQuery,
@@ -31,12 +33,10 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
     viewMode,
     nodeLimit,
     selectedNodeId,
-    selectedMemoryTypes,
     setSearchQuery,
     addTag,
     removeTag,
     setViewMode,
-    toggleMemoryType,
   } = useMemoryGraphStore();
 
   // Fetch graph data
@@ -89,9 +89,20 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* View Area */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-auto">
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <Card>
+                <CardContent className="p-6 text-center text-muted-foreground">
+                  <Brain className="h-12 w-12 mx-auto mb-4 opacity-50 animate-pulse" />
+                  <p>{t(($) => $.graph_loading) || "Loading graph..."}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {error && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <Card>
                 <CardContent className="p-6 text-center text-destructive">
                   <p>{t(($) => $.graph_error) || "Failed to load graph"}</p>
@@ -101,7 +112,7 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
           )}
 
           {!isLoading && !error && (!graphData?.nodes || graphData.nodes.length === 0) && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <Card>
                 <CardContent className="p-6 text-center text-muted-foreground">
                   <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />

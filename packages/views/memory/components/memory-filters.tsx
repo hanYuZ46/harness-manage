@@ -30,6 +30,8 @@ export function MemoryFilters({
   onViewModeChange,
   onToggleMemoryType,
 }: MemoryFiltersProps) {
+  // Debug: log render with current state
+  console.log('[MemoryFilters] Rendering, selectedMemoryTypes:', selectedMemoryTypes);
   const { t } = useT("memories");
   const [tagInput, setTagInput] = useState("");
   const [searchDebounce, setSearchDebounce] = useState(searchQuery);
@@ -63,7 +65,7 @@ export function MemoryFilters({
   return (
     <div className="space-y-3">
       {/* Memory Type Filter - Radio behavior (only one active at a time) */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="space-y-2">
         <span className="text-xs text-muted-foreground font-medium">
           {t(($) => $.memory_types) || "Memory Types"}:
         </span>
@@ -72,12 +74,13 @@ export function MemoryFilters({
             variant={selectedMemoryTypes.includes("observation") ? "default" : "outline"}
             size="sm"
             onClick={() => {
-              // If clicking the already selected type, do nothing (keep it selected)
-              // If clicking a different type, switch to it
+              console.log('[MemoryFilters] Clicked observation, currently selected:', selectedMemoryTypes, 'will be:', selectedMemoryTypes.includes("observation") ? 'outline (no change)' : 'default');
               if (!selectedMemoryTypes.includes("observation")) {
                 onToggleMemoryType("observation");
               }
             }}
+            data-type="observation"
+            data-active={selectedMemoryTypes.includes("observation")}
           >
             {t(($) => $.type_observation) || "Observation"}
           </Button>
@@ -85,10 +88,13 @@ export function MemoryFilters({
             variant={selectedMemoryTypes.includes("experience") ? "default" : "outline"}
             size="sm"
             onClick={() => {
+              console.log('[MemoryFilters] Clicked experience, currently selected:', selectedMemoryTypes, 'will be:', selectedMemoryTypes.includes("experience") ? 'outline (no change)' : 'default');
               if (!selectedMemoryTypes.includes("experience")) {
                 onToggleMemoryType("experience");
               }
             }}
+            data-type="experience"
+            data-active={selectedMemoryTypes.includes("experience")}
           >
             {t(($) => $.type_experience) || "Experience"}
           </Button>
@@ -96,10 +102,13 @@ export function MemoryFilters({
             variant={selectedMemoryTypes.includes("fact") ? "default" : "outline"}
             size="sm"
             onClick={() => {
+              console.log('[MemoryFilters] Clicked fact, currently selected:', selectedMemoryTypes, 'will be:', selectedMemoryTypes.includes("fact") ? 'outline (no change)' : 'default');
               if (!selectedMemoryTypes.includes("fact")) {
                 onToggleMemoryType("fact");
               }
             }}
+            data-type="fact"
+            data-active={selectedMemoryTypes.includes("fact")}
           >
             {t(($) => $.type_fact) || "Fact"}
           </Button>

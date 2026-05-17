@@ -6,7 +6,7 @@ import { Card, CardContent } from "@multica/ui/components/ui/card";
 import { useMemoryGraph } from "@multica/core/memory/hooks";
 import { useWorkspaceId } from "@multica/core/hooks";
 import { useT } from "../../i18n";
-import { useMemoryGraphStore } from "@multica/core/memory/graph-store";
+import { useMemoryGraphStore, useSelectedMemoryTypes, useToggleMemoryType } from "@multica/core/memory/graph-store";
 import { MemoryFilters } from "./memory-filters";
 import { CytoscapeGraph } from "./cytoscape-graph";
 import { MemoryTableView } from "./memory-table-view";
@@ -20,7 +20,10 @@ export function MemoryPage() {
   const { t } = useT("memories");
   const wsId = useWorkspaceId();
 
-  // Zustand store state and actions
+  // Zustand store state and actions - use selectors for proper re-rendering
+  const selectedMemoryTypes = useSelectedMemoryTypes();
+  const toggleMemoryType = useToggleMemoryType();
+
   const {
     graphData,
     searchQuery,
@@ -28,12 +31,10 @@ export function MemoryPage() {
     viewMode,
     nodeLimit,
     selectedNodeId,
-    selectedMemoryTypes,
     setSearchQuery,
     addTag,
     removeTag,
     setViewMode,
-    toggleMemoryType,
     setGraphData,
   } = useMemoryGraphStore();
 
