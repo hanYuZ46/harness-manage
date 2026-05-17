@@ -1511,6 +1511,54 @@ func (h *Handler) CompleteTask(w http.ResponseWriter, r *http.Request) {
 
 	h.emitIssueExecutedOnFirstCompletion(r, task)
 
+	// Async retain task execution memory (non-blocking)
+	if h.MemoryClient != nil && task.Status == "completed" {
+		// Fetch issue to get workspace ID
+		issue, err := h.Queries.GetIssue(r.Context(), task.IssueID)
+		if err == nil {
+			bankID := fmt.Sprintf("ws-%s", uuidToString(issue.WorkspaceID))
+			memoryContent := fmt.Sprintf(
+				"Agent %s completed task for issue %s. Input: %s. Output: %s.",
+				uuidToString(task.AgentID),
+				uuidToString(task.IssueID),
+				truncateString(req.Output, 500),
+				truncateString(req.Output, 500),
+			)
+
+			go func() {
+				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				defer cancel()
+
+				err := h.MemoryClient.Retain(ctx, bankID, service.RetainRequest{
+					Items: []service.MemoryItem{
+						{
+							Content: memoryContent,
+							Context: "task_execution",
+							Metadata: map[string]string{
+								"agent_id": uuidToString(task.AgentID),
+								"task_id":  uuidToString(task.ID),
+								"issue_id": uuidToString(task.IssueID),
+								"status":   task.Status,
+							},
+							Tags: []string{
+								fmt.Sprintf("agent:%s", uuidToString(task.AgentID)),
+								"task_execution",
+							},
+						},
+					},
+					Async: false,
+				})
+
+				if err != nil {
+					slog.Warn("memory retain failed",
+						"task_id", uuidToString(task.ID),
+						"error", err,
+					)
+				}
+			}()
+		}
+	}
+
 	slog.Info("task completed", "task_id", taskID, "agent_id", uuidToString(task.AgentID))
 	writeJSON(w, http.StatusOK, taskToResponse(*task))
 }
@@ -2051,4 +2099,12 @@ func (h *Handler) GetTaskGCCheck(w http.ResponseWriter, r *http.Request) {
 		"status":       task.Status,
 		"completed_at": task.CompletedAt.Time,
 	})
+}
+
+// truncateString truncates a string to the specified maximum length
+func truncateString(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen] + "..."
 }
