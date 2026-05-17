@@ -140,14 +140,12 @@ export const useMemoryGraphStore = create<MemoryGraphState>((set, get) => ({
   toggleMemoryType: (type) => {
     const { selectedMemoryTypes } = get();
     if (selectedMemoryTypes.includes(type)) {
-      // Don't allow removing the last type
-      if (selectedMemoryTypes.length > 1) {
-        set({
-          selectedMemoryTypes: selectedMemoryTypes.filter((t) => t !== type),
-        });
-      }
+      // If clicking the already selected type, do nothing (keep it selected)
+      // This makes it behave like a radio button
+      return;
     } else {
-      set({ selectedMemoryTypes: [...selectedMemoryTypes, type] });
+      // Switch to the new type (radio behavior - only one at a time)
+      set({ selectedMemoryTypes: [type] });
     }
   },
 

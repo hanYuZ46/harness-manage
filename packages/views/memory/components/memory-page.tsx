@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Brain } from "lucide-react";
+import { Brain, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@multica/ui/components/ui/card";
 import { useMemoryGraph } from "@multica/core/memory/hooks";
 import { useWorkspaceId } from "@multica/core/hooks";
@@ -34,6 +34,7 @@ export function MemoryPage() {
     removeTag,
     setViewMode,
     toggleMemoryType,
+    setGraphData,
   } = useMemoryGraphStore();
 
   // Fetch graph data
@@ -47,60 +48,9 @@ export function MemoryPage() {
   // Sync fetched data with Zustand store
   useEffect(() => {
     if (fetchedData) {
-      useMemoryGraphStore.getState().setGraphData(fetchedData);
+      setGraphData(fetchedData);
     }
-  }, [fetchedData]);
-
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="flex flex-1 min-h-0 flex-col">
-        <div className="flex-shrink-0 p-4 border-b border-border space-y-3">
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-5 w-5 rounded" />
-            <Skeleton className="h-4 w-32 rounded" />
-          </div>
-          <Skeleton className="h-8 w-full rounded" />
-        </div>
-        <div className="flex-1 flex items-center justify-center">
-          <Skeleton className="h-64 w-64 rounded-lg" />
-        </div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="flex flex-1 min-h-0 flex-col">
-        <div className="flex-shrink-0 p-4 border-b border-border space-y-3">
-          <div className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-primary" />
-            <h2 className="text-sm font-semibold">{t(($) => $.graph_title) || "Memory Graph"}</h2>
-          </div>
-        </div>
-        <div className="flex-1 flex items-center justify-center">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <p className="text-sm font-medium text-destructive">{t(($) => $.graph_error) || "Failed to load graph"}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {error instanceof Error ? error.message : "Unknown error"}
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="mt-4"
-                onClick={() => refetch()}
-              >
-                {t(($) => $.try_again) || "Try again"}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
+  }, [fetchedData, setGraphData]);
 
   return (
     <div className="flex flex-1 min-h-0 flex-col">
@@ -126,36 +76,64 @@ export function MemoryPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         {/* View Area */}
-        <div className="flex-1 overflow-hidden">
-          {error && (
-            <div className="absolute inset-0 flex items-center justify-center">
+        <div className="flex-1 overflow-hidden relative">
+          {/* Loading overlay - only over graph area */}
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/50 z-10">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-6 w-6 animate-spin" />
+                <span className="text-sm">{t(($) => $.loading_graph) || "Loading graph..."}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Error state - inline card */}
+          {error && !isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center p-4">
               <Card>
-                <CardContent className="p-6 text-center text-destructive">
-                  <p>{t(($) => $.graph_error) || "Failed to load graph"}</p>
+                <CardContent className="p-6 text-center">
+                  <p className="text-sm font-medium text-destructive">{t(($) => $.graph_error) || "Failed to load graph"}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {error instanceof Error ? error.message : "Unknown error"}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => refetch()}
+                  >
+                    {t(($) => $.try_again) || "Try again"}
+                  </Button>
                 </CardContent>
               </Card>
             </div>
           )}
 
-          {/* Empty state - no memories */}
-          {(!graphData?.nodes || graphData.nodes.length === 0) && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Card>
+          {/* Empty state - no memories (only shown when not loading and no error) */}
+          {!isLoading && !error && (!graphData?.nodes || graphData.nodes.length === 0) && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <Card className="pointer-events-auto">
                 <CardContent className="p-6 text-center text-muted-foreground">
                   <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>{t(($) => $.graph_empty) || "No memories in graph"}</p>
+                  {(searchQuery || selectedTags.length > 0 || selectedMemoryTypes.length > 0) && (
+                    <p className="mt-2 text-xs">
+                      {t(($) => $.try_adjust_filters) || "Try adjusting your search or filters"}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             </div>
           )}
 
           {/* Render view based on mode */}
-          {graphData && graphData.nodes.length > 0 && (
+          {!isLoading && !error && graphData && graphData.nodes.length > 0 && (
             <div className="w-full h-full">
               {viewMode === "graph" && (
-                <CytoscapeGraph data={graphData} />
+                <CytoscapeGraph data={graphData} isLoading={isLoading} />
               )}
               {viewMode === "table" && graphData?.table_rows && (
                 <MemoryTableView data={graphData.table_rows} />

@@ -62,7 +62,7 @@ export function MemoryFilters({
 
   return (
     <div className="space-y-3">
-      {/* Memory Type Filter */}
+      {/* Memory Type Filter - Radio behavior (only one active at a time) */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-xs text-muted-foreground font-medium">
           {t(($) => $.memory_types) || "Memory Types"}:
@@ -71,21 +71,35 @@ export function MemoryFilters({
           <Button
             variant={selectedMemoryTypes.includes("observation") ? "default" : "outline"}
             size="sm"
-            onClick={() => onToggleMemoryType("observation")}
+            onClick={() => {
+              // If clicking the already selected type, do nothing (keep it selected)
+              // If clicking a different type, switch to it
+              if (!selectedMemoryTypes.includes("observation")) {
+                onToggleMemoryType("observation");
+              }
+            }}
           >
             {t(($) => $.type_observation) || "Observation"}
           </Button>
           <Button
             variant={selectedMemoryTypes.includes("experience") ? "default" : "outline"}
             size="sm"
-            onClick={() => onToggleMemoryType("experience")}
+            onClick={() => {
+              if (!selectedMemoryTypes.includes("experience")) {
+                onToggleMemoryType("experience");
+              }
+            }}
           >
             {t(($) => $.type_experience) || "Experience"}
           </Button>
           <Button
             variant={selectedMemoryTypes.includes("fact") ? "default" : "outline"}
             size="sm"
-            onClick={() => onToggleMemoryType("fact")}
+            onClick={() => {
+              if (!selectedMemoryTypes.includes("fact")) {
+                onToggleMemoryType("fact");
+              }
+            }}
           >
             {t(($) => $.type_fact) || "Fact"}
           </Button>
