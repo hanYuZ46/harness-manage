@@ -4,5 +4,17 @@
   "search": "搜索",
   "loading": "加载中...",
   "error": "加载失败",
-  "empty": "暂无记忆"
+  "empty": "暂无记忆",
+  "graph_title": "记忆图谱",
+  "graph_search_placeholder": "搜索图谱...",
+  "graph_error": "加载图谱失败",
+  "graph_empty": "图谱中没有记忆",
+  "add_tag": "添加标签",
+  "view_graph": "图谱",
+  "view_table": "表格",
+  "view_timeline": "时间线",
+  "detail_title": "记忆详情",
+  "nodes": "节点",
+  "edges": "边",
+  "limit": "限制"
 }

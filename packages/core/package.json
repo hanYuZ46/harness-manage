@@ -89,7 +89,10 @@
     "./i18n": "./i18n/index.ts",
     "./i18n/react": "./i18n/react.ts",
     "./i18n/browser": "./i18n/browser.ts",
-    "./memory": "./memory/index.ts"
+    "./memory": "./memory/index.ts",
+    "./memory/hooks": "./memory/hooks.ts",
+    "./memory/queries": "./memory/queries.ts",
+    "./memory/graph-store": "./memory/graph-store.ts"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "catalog:",

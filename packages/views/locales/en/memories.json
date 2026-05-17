@@ -4,5 +4,17 @@
   "search": "Search",
   "loading": "Loading...",
   "error": "Failed to load",
-  "empty": "No memories yet"
+  "empty": "No memories yet",
+  "graph_title": "Memory Graph",
+  "graph_search_placeholder": "Search graph...",
+  "graph_error": "Failed to load graph",
+  "graph_empty": "No memories in graph",
+  "add_tag": "Add tag",
+  "view_graph": "Graph",
+  "view_table": "Table",
+  "view_timeline": "Timeline",
+  "detail_title": "Memory Details",
+  "nodes": "Nodes",
+  "edges": "Edges",
+  "limit": "Limit"
 }
