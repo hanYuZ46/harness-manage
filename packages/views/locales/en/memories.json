@@ -12,6 +12,7 @@
   "graph_error": "Failed to load graph",
   "graph_empty": "No memories in graph",
   "try_again": "Try again",
+  "try_adjust_filters": "Try adjusting filters",
   "add_tag": "Add tag",
   "view_graph": "Graph",
   "view_table": "Table",
