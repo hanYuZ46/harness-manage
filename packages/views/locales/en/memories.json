@@ -3,6 +3,8 @@
   "search_placeholder": "Search memories...",
   "search": "Search",
   "loading": "Loading...",
+  "loading_graph": "Loading graph...",
+  "graph_loading": "Loading graph...",
   "error": "Failed to load",
   "empty": "No memories yet",
   "graph_title": "Spatial Memory Map",

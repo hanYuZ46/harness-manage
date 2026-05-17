@@ -4,6 +4,7 @@
   "search": "搜索",
   "loading": "加载中...",
   "loading_graph": "加载图谱中...",
+  "graph_loading": "加载图谱中...",
   "error": "加载失败",
   "empty": "暂无记忆",
   "graph_title": "空间记忆地图",
