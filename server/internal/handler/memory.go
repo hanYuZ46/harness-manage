@@ -153,8 +153,8 @@ func (h *Handler) GetMemoryGraph(w http.ResponseWriter, r *http.Request) {
 	graphType := queryParams.Get("type")
 	limit := queryParams.Get("limit")
 
-	// Build upstream URL
-	memoryServiceURL := "https://enn-memory-clients.dev.ennew.com/api/graph"
+	// Build upstream URL - use v1 API path
+	memoryServiceURL := "https://enn-memory.dev.ennew.com/v1/default/banks/" + url.PathEscape(bankID) + "/graph"
 	upstreamURL, err := url.Parse(memoryServiceURL)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to parse memory service URL", "error", err)
@@ -164,7 +164,6 @@ func (h *Handler) GetMemoryGraph(w http.ResponseWriter, r *http.Request) {
 
 	// Add query parameters
 	q := upstreamURL.Query()
-	q.Set("bank_id", bankID)
 	if graphType != "" {
 		q.Set("type", graphType)
 	}
@@ -226,20 +225,14 @@ func (h *Handler) GetMemoryDetail(w http.ResponseWriter, r *http.Request) {
 	// Build bank_id as ws-{workspaceId}
 	bankID := fmt.Sprintf("ws-%s", workspaceID)
 
-	// Build upstream URL
-	memoryServiceURL := "https://enn-memory-clients.dev.ennew.com/api/memory"
+	// Build upstream URL - use v1 API path
+	memoryServiceURL := "https://enn-memory.dev.ennew.com/v1/default/banks/" + url.PathEscape(bankID) + "/memories/" + url.PathEscape(memoryID)
 	upstreamURL, err := url.Parse(memoryServiceURL)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to parse memory service URL", "error", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-
-	// Add query parameters
-	q := upstreamURL.Query()
-	q.Set("bank_id", bankID)
-	q.Set("memory_id", memoryID)
-	upstreamURL.RawQuery = q.Encode()
 
 	// Create upstream request
 	upstreamReq, err := http.NewRequestWithContext(ctx, "GET", upstreamURL.String(), nil)
