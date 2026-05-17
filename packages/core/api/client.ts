@@ -88,6 +88,8 @@ import type {
   ListGitHubInstallationsResponse,
   GitHubConnectResponse,
   MemoryListResponse,
+  MemoryGraphResponse,
+  MemoryDetailResponse,
 } from "../types";
 import type { OnboardingCompletionPath } from "../onboarding/types";
 import { type Logger, noopLogger } from "../logger";
@@ -1402,5 +1404,30 @@ export class ApiClient {
     if (params?.agent_id) search.set("agent_id", params.agent_id);
     if (params?.tags) params.tags.forEach((tag) => search.append("tags", tag));
     return this.fetch(`/api/workspaces/${workspaceId}/memories?${search}`);
+  }
+
+  // Memory Graph - proxy via backend to avoid CORS issues
+  async getMemoryGraph(
+    workspaceId: string,
+    params?: { type?: "experience" | "world" | "opinion"; limit?: number },
+  ): Promise<MemoryGraphResponse> {
+    const search = new URLSearchParams();
+    if (params?.type) search.set("type", params.type);
+    if (params?.limit) search.set("limit", String(params.limit));
+
+    // Proxy via backend to avoid CORS issues
+    const url = `/api/workspaces/${workspaceId}/memories/graph?${search}`;
+
+    return this.fetch(url);
+  }
+
+  async getMemoryDetail(
+    workspaceId: string,
+    memoryId: string,
+  ): Promise<MemoryDetailResponse> {
+    // Proxy via backend to avoid CORS issues
+    const url = `/api/workspaces/${workspaceId}/memories/${memoryId}`;
+
+    return this.fetch(url);
   }
 }

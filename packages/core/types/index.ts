@@ -94,4 +94,4 @@ export type {
   GetAutopilotResponse,
   ListAutopilotRunsResponse,
 } from "./autopilot";
-export type { MemoryItem, MemoryListResponse, MemoryRecallRequest } from "./memory";
+export type { MemoryItem, MemoryListResponse, MemoryRecallRequest, MemoryGraphNode, MemoryGraphEdge, MemoryGraphResponse, MemoryGraphTableRow, MemoryDetailResponse } from "./memory";
