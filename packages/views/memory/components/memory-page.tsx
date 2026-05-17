@@ -13,7 +13,6 @@ import { MemoryTableView } from "./memory-table-view";
 import { MemoryTimelineView } from "./memory-timeline-view";
 import { MemoryControlPanel } from "./memory-control-panel";
 import { MemoryDetailPanel } from "./memory-detail-panel";
-import { Skeleton } from "@multica/ui/components/ui/skeleton";
 import { Button } from "@multica/ui/components/ui/button";
 
 export function MemoryPage() {
@@ -134,7 +133,7 @@ export function MemoryPage() {
           {!isLoading && !error && graphData && graphData.nodes.length > 0 && (
             <div className="w-full h-full">
               {viewMode === "graph" && (
-                <CytoscapeGraph data={graphData} isLoading={isLoading} />
+                <CytoscapeGraph data={graphData} />
               )}
               {viewMode === "table" && graphData?.table_rows && (
                 <MemoryTableView data={graphData.table_rows} />
