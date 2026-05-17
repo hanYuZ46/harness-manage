@@ -1409,10 +1409,10 @@ export class ApiClient {
   // Memory Graph - proxy via backend to avoid CORS issues
   async getMemoryGraph(
     workspaceId: string,
-    params?: { type?: "experience" | "world" | "opinion"; limit?: number; q?: string; tags?: string[]; tags_match?: "any" | "all" },
+    params?: { type?: string[]; limit?: number; q?: string; tags?: string[]; tags_match?: "any" | "all" },
   ): Promise<MemoryGraphResponse> {
     const search = new URLSearchParams();
-    if (params?.type) search.set("type", params.type);
+    if (params?.type) params.type.forEach((t) => search.append("type", t));
     if (params?.limit) search.set("limit", String(params.limit));
     if (params?.q) search.set("q", params.q);
     if (params?.tags) params.tags.forEach((tag) => search.append("tags", tag));

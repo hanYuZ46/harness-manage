@@ -11,20 +11,24 @@ export interface MemoryFiltersProps {
   searchQuery: string;
   selectedTags: string[];
   viewMode: MemoryGraphViewMode;
+  selectedMemoryTypes: string[];
   onSearchChange: (query: string) => void;
   onAddTag: (tag: string) => void;
   onRemoveTag: (tag: string) => void;
   onViewModeChange: (mode: MemoryGraphViewMode) => void;
+  onToggleMemoryType: (type: string) => void;
 }
 
 export function MemoryFilters({
   searchQuery,
   selectedTags,
   viewMode,
+  selectedMemoryTypes,
   onSearchChange,
   onAddTag,
   onRemoveTag,
   onViewModeChange,
+  onToggleMemoryType,
 }: MemoryFiltersProps) {
   const { t } = useT("memories");
   const [tagInput, setTagInput] = useState("");
@@ -58,6 +62,36 @@ export function MemoryFilters({
 
   return (
     <div className="space-y-3">
+      {/* Memory Type Filter */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-muted-foreground font-medium">
+          {t(($) => $.memory_types) || "Memory Types"}:
+        </span>
+        <div className="flex items-center gap-1">
+          <Button
+            variant={selectedMemoryTypes.includes("observation") ? "default" : "outline"}
+            size="sm"
+            onClick={() => onToggleMemoryType("observation")}
+          >
+            {t(($) => $.type_observation) || "Observation"}
+          </Button>
+          <Button
+            variant={selectedMemoryTypes.includes("experience") ? "default" : "outline"}
+            size="sm"
+            onClick={() => onToggleMemoryType("experience")}
+          >
+            {t(($) => $.type_experience) || "Experience"}
+          </Button>
+          <Button
+            variant={selectedMemoryTypes.includes("fact") ? "default" : "outline"}
+            size="sm"
+            onClick={() => onToggleMemoryType("fact")}
+          >
+            {t(($) => $.type_fact) || "Fact"}
+          </Button>
+        </div>
+      </div>
+
       {/* View Mode Switcher */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 border border-border rounded-md p-1">

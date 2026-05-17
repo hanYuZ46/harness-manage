@@ -22,7 +22,9 @@
   "column_tags": "Tags",
   "column_type": "Type",
   "column_time": "Time",
+  "type_observation": "Observation",
   "type_experience": "Experience",
+  "type_fact": "Fact",
   "type_world": "World",
   "type_opinion": "Opinion",
   "table_empty": "No memories found",
@@ -32,5 +34,6 @@
   "link_types": "Link Types",
   "display": "Display",
   "node_limit": "Node Limit",
-  "show_labels": "Show Labels"
+  "show_labels": "Show Labels",
+  "memory_types": "Memory Types"
 }

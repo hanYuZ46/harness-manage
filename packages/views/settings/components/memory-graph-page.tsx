@@ -31,16 +31,18 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
     viewMode,
     nodeLimit,
     selectedNodeId,
+    selectedMemoryTypes,
     setSearchQuery,
     addTag,
     removeTag,
     setViewMode,
+    toggleMemoryType,
   } = useMemoryGraphStore();
 
   // Fetch graph data
   const { data: fetchedData, isLoading, error } = useMemoryGraph(workspace?.id ?? "", {
     limit: nodeLimit,
-    type: "experience",
+    type: selectedMemoryTypes,
     q: searchQuery,
     tags: selectedTags,
   });
@@ -75,10 +77,12 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
           searchQuery={searchQuery}
           selectedTags={selectedTags}
           viewMode={viewMode}
+          selectedMemoryTypes={selectedMemoryTypes}
           onSearchChange={setSearchQuery}
           onAddTag={addTag}
           onRemoveTag={removeTag}
           onViewModeChange={setViewMode}
+          onToggleMemoryType={toggleMemoryType}
         />
       </div>
 

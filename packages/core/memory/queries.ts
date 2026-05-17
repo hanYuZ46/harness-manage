@@ -25,7 +25,7 @@ export function memoryListOptions(
 
 export function memoryGraphOptions(
   workspaceId: string,
-  params?: { type?: "experience" | "world" | "opinion"; limit?: number; q?: string; tags?: string[]; tags_match?: "any" | "all" },
+  params?: { type?: string[]; limit?: number; q?: string; tags?: string[]; tags_match?: "any" | "all" },
 ) {
   return queryOptions({
     queryKey: memoryKeys.graph(workspaceId, params?.q, params?.tags),

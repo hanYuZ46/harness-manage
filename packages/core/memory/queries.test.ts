@@ -50,7 +50,7 @@ describe("memoryGraphOptions", () => {
     const options = memoryGraphOptions("workspace-1", {
       q: "search",
       tags: ["tag1"],
-      type: "experience",
+      type: ["experience"],
       limit: 50,
       tags_match: "all",
     });

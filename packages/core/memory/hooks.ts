@@ -10,7 +10,7 @@ export function useMemories(
 
 export function useMemoryGraph(
   workspaceId: string,
-  params?: { type?: "world" | "experience" | "opinion"; limit?: number; q?: string; tags?: string[]; tags_match?: "any" | "all" },
+  params?: { type?: string[]; limit?: number; q?: string; tags?: string[]; tags_match?: "any" | "all" },
 ) {
   return useQuery(memoryGraphOptions(workspaceId, params));
 }

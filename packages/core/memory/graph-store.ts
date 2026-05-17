@@ -11,6 +11,7 @@ export interface MemoryGraphState {
   searchQuery: string;
   selectedTags: string[];
   selectedLinkTypes: string[];
+  selectedMemoryTypes: string[];
 
   // View
   viewMode: MemoryGraphViewMode;
@@ -33,6 +34,8 @@ export interface MemoryGraphState {
   setSelectedNode: (nodeId: string | null) => void;
   setFocusedNode: (nodeId: string | null) => void;
   toggleLinkType: (linkType: string) => void;
+  setMemoryTypes: (types: string[]) => void;
+  toggleMemoryType: (type: string) => void;
   reset: () => void;
 }
 
@@ -46,6 +49,7 @@ const initialState = {
   searchQuery: "",
   selectedTags: [],
   selectedLinkTypes: DEFAULT_LINK_TYPES,
+  selectedMemoryTypes: ["observation"],
   viewMode: "graph" as MemoryGraphViewMode,
   nodeLimit: DEFAULT_NODE_LIMIT,
   showLabels: true,
@@ -116,6 +120,24 @@ export const useMemoryGraphStore = create<MemoryGraphState>((set, get) => ({
       }
     } else {
       set({ selectedLinkTypes: [...selectedLinkTypes, linkType] });
+    }
+  },
+
+  setMemoryTypes: (types) => {
+    set({ selectedMemoryTypes: types });
+  },
+
+  toggleMemoryType: (type) => {
+    const { selectedMemoryTypes } = get();
+    if (selectedMemoryTypes.includes(type)) {
+      // Don't allow removing the last type
+      if (selectedMemoryTypes.length > 1) {
+        set({
+          selectedMemoryTypes: selectedMemoryTypes.filter((t) => t !== type),
+        });
+      }
+    } else {
+      set({ selectedMemoryTypes: [...selectedMemoryTypes, type] });
     }
   },
 

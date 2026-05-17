@@ -22,7 +22,9 @@
   "column_tags": "标签",
   "column_type": "类型",
   "column_time": "时间",
+  "type_observation": "观察",
   "type_experience": "经历",
+  "type_fact": "事实",
   "type_world": "世界",
   "type_opinion": "观点",
   "table_empty": "暂无记忆数据",
@@ -32,5 +34,6 @@
   "link_types": "链接类型",
   "display": "显示",
   "node_limit": "节点限制",
-  "show_labels": "显示标签"
+  "show_labels": "显示标签",
+  "memory_types": "记忆类型"
 }
