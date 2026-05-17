@@ -1,19 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Brain, Calendar, User } from "lucide-react";
+import { Search, Brain, Calendar, User, Network } from "lucide-react";
 import { Input } from "@multica/ui/components/ui/input";
 import { Button } from "@multica/ui/components/ui/button";
 import { Card, CardContent } from "@multica/ui/components/ui/card";
-import { useMemories } from "@multica/core/memory";
+import { Tabs, TabsList, TabsTrigger } from "@multica/ui/components/ui/tabs";
+import { useMemories } from "@multica/core/memory/hooks";
 import { useCurrentWorkspace } from "@multica/core/paths";
 import { useT } from "../../i18n";
 import type { MemoryItem } from "@multica/core/types";
+import { MemoryGraphPage } from "./memory-graph-page";
+
+type MemoryViewMode = "list" | "graph";
 
 export function MemoriesTab() {
   const { t } = useT("memories");
   const workspace = useCurrentWorkspace();
   const [query, setQuery] = useState("");
+  const [viewMode, setViewMode] = useState<MemoryViewMode>("list");
 
   const { data, isLoading, error } = useMemories(workspace?.id ?? "", {
     query: query || undefined,
@@ -21,11 +26,29 @@ export function MemoriesTab() {
 
   if (!workspace) return null;
 
+  if (viewMode === "graph") {
+    return <MemoryGraphPage onClose={() => setViewMode("list")} />;
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Brain className="h-5 w-5 text-primary" />
-        <h2 className="text-sm font-semibold">{t(($) => $.title)}</h2>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Brain className="h-5 w-5 text-primary" />
+          <h2 className="text-sm font-semibold">{t(($) => $.title)}</h2>
+        </div>
+        <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as MemoryViewMode)}>
+          <TabsList>
+            <TabsTrigger value="list" className="flex items-center gap-1">
+              <Search className="h-3 w-3" />
+              List
+            </TabsTrigger>
+            <TabsTrigger value="graph" className="flex items-center gap-1">
+              <Network className="h-3 w-3" />
+              Graph
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       <Card>

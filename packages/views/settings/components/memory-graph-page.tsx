@@ -9,6 +9,7 @@ import { useCurrentWorkspace } from "@multica/core/paths";
 import { useT } from "../../i18n";
 import { useMemoryGraphStore } from "@multica/core/memory/graph-store";
 import { MemoryFilters } from "./memory-filters";
+import { CytoscapeGraph } from "./cytoscape-graph";
 import type { MemoryGraphTableRow } from "@multica/core/types/memory";
 
 interface MemoryGraphPageProps {
@@ -111,12 +112,7 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
           {graphData && graphData.nodes.length > 0 && (
             <div className="w-full h-full">
               {viewMode === "graph" && (
-                <div className="w-full h-full">
-                  {/* TODO: Import and render CytoscapeGraph with Zustand integration */}
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    Graph view - coming soon
-                  </div>
-                </div>
+                <CytoscapeGraph data={graphData} />
               )}
               {viewMode === "table" && (
                 <div className="w-full h-full overflow-auto">
