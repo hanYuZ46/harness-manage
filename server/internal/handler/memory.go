@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/multica-ai/multica/server/internal/service"
@@ -27,29 +28,37 @@ func (h *Handler) GetMemories(w http.ResponseWriter, r *http.Request) {
 
 	// Parse query parameters
 	agentID := r.URL.Query().Get("agent_id")
-	tags := r.URL.Query()["tags"]
-	query := r.URL.Query().Get("query")
-	if query == "" {
-		query = "*"
-	}
+	query := strings.TrimSpace(r.URL.Query().Get("query"))
 
 	if h.MemoryClient == nil {
 		writeError(w, http.StatusServiceUnavailable, "memory service not configured")
 		return
 	}
 
-	// Build recall request
+	// If query is empty and no agent_id, return empty results
+	// (enn-memory API requires a non-empty query)
+	if query == "" && agentID == "" {
+		writeJSON(w, http.StatusOK, MemoryListResponse{
+			Memories: []service.MemoryResult{},
+			Total:    0,
+		})
+		return
+	}
+
+	// Build recall request - only include non-empty fields to avoid API errors
 	recallReq := service.RecallRequest{
 		Query: query,
-		Tags:  tags,
 		Limit: 100,
+	}
+
+	// Only add tags if query param is provided
+	tagValues := r.URL.Query()["tags"]
+	if len(tagValues) > 0 {
+		recallReq.Tags = tagValues
 	}
 
 	// If agent_id is provided, add to tags
 	if agentID != "" {
-		if recallReq.Tags == nil {
-			recallReq.Tags = []string{}
-		}
 		recallReq.Tags = append(recallReq.Tags, fmt.Sprintf("agent:%s", agentID))
 	}
 
