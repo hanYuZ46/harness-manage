@@ -254,3 +254,62 @@ describe("reset", () => {
     expect(state.focusedNodeId).toBeNull();
   });
 });
+
+describe("selectedMemoryTypes", () => {
+  it("should initialize with default selectedMemoryTypes [observation]", () => {
+    useMemoryGraphStore.getState().reset();
+
+    const state = useMemoryGraphStore.getState();
+    expect(state.selectedMemoryTypes).toEqual(["observation"]);
+  });
+
+  it("should set memory types with setMemoryTypes", () => {
+    useMemoryGraphStore.getState().reset();
+
+    useMemoryGraphStore.getState().setMemoryTypes(["observation", "experience", "fact"]);
+
+    expect(useMemoryGraphStore.getState().selectedMemoryTypes).toEqual([
+      "observation",
+      "experience",
+      "fact",
+    ]);
+  });
+
+  it("should toggle memory type with toggleMemoryType - add", () => {
+    useMemoryGraphStore.getState().reset();
+
+    useMemoryGraphStore.getState().toggleMemoryType("experience");
+
+    expect(useMemoryGraphStore.getState().selectedMemoryTypes).toEqual([
+      "observation",
+      "experience",
+    ]);
+  });
+
+  it("should toggle memory type with toggleMemoryType - remove", () => {
+    useMemoryGraphStore.getState().reset();
+    useMemoryGraphStore.getState().setMemoryTypes(["observation", "experience"]);
+
+    useMemoryGraphStore.getState().toggleMemoryType("observation");
+
+    expect(useMemoryGraphStore.getState().selectedMemoryTypes).toEqual(["experience"]);
+  });
+
+  it("should not remove the last memory type", () => {
+    useMemoryGraphStore.getState().reset();
+    useMemoryGraphStore.getState().setMemoryTypes(["observation"]);
+
+    useMemoryGraphStore.getState().toggleMemoryType("observation");
+
+    expect(useMemoryGraphStore.getState().selectedMemoryTypes).toEqual(["observation"]);
+  });
+
+  it("should reset selectedMemoryTypes to default on reset", () => {
+    useMemoryGraphStore.getState().reset();
+    useMemoryGraphStore.getState().setMemoryTypes(["fact"]);
+
+    useMemoryGraphStore.getState().reset();
+
+    expect(useMemoryGraphStore.getState().selectedMemoryTypes).toEqual(["observation"]);
+  });
+});
