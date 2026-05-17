@@ -16,5 +16,15 @@
   "detail_title": "Memory Details",
   "nodes": "Nodes",
   "edges": "Edges",
-  "limit": "Limit"
+  "limit": "Limit",
+  "column_content": "Content",
+  "column_entities": "Entities",
+  "column_tags": "Tags",
+  "column_type": "Type",
+  "column_time": "Time",
+  "type_experience": "Experience",
+  "type_world": "World",
+  "type_opinion": "Opinion",
+  "table_empty": "No memories found",
+  "pagination_info": "Showing {from}-{to} of {total}"
 }

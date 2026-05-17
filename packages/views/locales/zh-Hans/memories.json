@@ -16,5 +16,15 @@
   "detail_title": "记忆详情",
   "nodes": "节点",
   "edges": "边",
-  "limit": "限制"
+  "limit": "限制",
+  "column_content": "内容",
+  "column_entities": "实体",
+  "column_tags": "标签",
+  "column_type": "类型",
+  "column_time": "时间",
+  "type_experience": "经历",
+  "type_world": "世界",
+  "type_opinion": "观点",
+  "table_empty": "暂无记忆数据",
+  "pagination_info": "显示 {from}-{to} 共 {total} 条"
 }
