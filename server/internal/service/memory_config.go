@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log/slog"
 	"os"
 )
 
@@ -28,6 +29,11 @@ func LoadMemoryConfig() MemoryConfig {
 
 	// Enable if URL is configured
 	config.Enabled = config.BaseURL != ""
+
+	slog.Info("memory service config loaded",
+		"enabled", config.Enabled,
+		"base_url", config.BaseURL,
+		"auth_token_set", config.AuthToken != "")
 
 	return config
 }

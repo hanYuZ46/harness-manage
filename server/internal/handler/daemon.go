@@ -1511,23 +1511,64 @@ func (h *Handler) CompleteTask(w http.ResponseWriter, r *http.Request) {
 
 	h.emitIssueExecutedOnFirstCompletion(r, task)
 
+	// Debug: log memory client state and task status
+	slog.Debug("checking memory retention",
+		"task_id", uuidToString(task.ID),
+		"status", task.Status,
+		"memory_client_nil", h.MemoryClient == nil)
+
 	// Async retain task execution memory (non-blocking)
 	if h.MemoryClient != nil && task.Status == "completed" {
-		// Fetch issue to get workspace ID
-		issue, err := h.Queries.GetIssue(r.Context(), task.IssueID)
-		if err == nil {
-			bankID := fmt.Sprintf("ws-%s", uuidToString(issue.WorkspaceID))
-			// Memory content in Chinese for better recall with Chinese queries
-			memoryContent := fmt.Sprintf(
-				"智能体 %s 完成了问题 %s 的任务。执行结果：%s。",
-				uuidToString(task.AgentID),
-				uuidToString(task.IssueID),
-				truncateString(req.Output, 500),
-			)
+		var workspaceID pgtype.UUID
+		var issueIDStr string
+		var memoryContent string
+
+		// Get workspace ID from issue or chat session
+		if task.IssueID.Valid {
+			// Task linked to an issue
+			issue, err := h.Queries.GetIssue(r.Context(), task.IssueID)
+			if err == nil {
+				workspaceID = issue.WorkspaceID
+				issueIDStr = uuidToString(task.IssueID)
+				memoryContent = fmt.Sprintf(
+					"智能体 %s 完成了问题 %s 的任务。执行结果：%s。",
+					uuidToString(task.AgentID),
+					issueIDStr,
+					truncateString(req.Output, 500),
+				)
+			} else {
+				slog.Warn("failed to get issue for memory retention", "task_id", uuidToString(task.ID), "issue_id", uuidToString(task.IssueID), "error", err)
+			}
+		} else if task.ChatSessionID.Valid {
+			// Chat task - get workspace from chat session
+			chatSession, err := h.Queries.GetChatSession(r.Context(), task.ChatSessionID)
+			if err == nil {
+				workspaceID = chatSession.WorkspaceID
+				issueIDStr = ""
+				memoryContent = fmt.Sprintf(
+					"智能体 %s 完成了聊天任务。执行结果：%s。",
+					uuidToString(task.AgentID),
+					truncateString(req.Output, 500),
+				)
+			} else {
+				slog.Warn("failed to get chat session for memory retention", "task_id", uuidToString(task.ID), "chat_session_id", uuidToString(task.ChatSessionID), "error", err)
+			}
+		} else {
+			slog.Debug("skipping memory retention: task has no issue or chat session", "task_id", uuidToString(task.ID))
+		}
+
+		// Only retain if we got a valid workspace ID
+		if workspaceID.Valid && memoryContent != "" {
+			bankID := fmt.Sprintf("ws-%s", uuidToString(workspaceID))
 
 			go func() {
 				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 				defer cancel()
+
+				slog.Info("calling memory retain API",
+					"task_id", uuidToString(task.ID),
+					"bank_id", bankID,
+					"content_length", len(memoryContent))
 
 				err := h.MemoryClient.Retain(ctx, bankID, service.RetainRequest{
 					Items: []service.MemoryItem{
@@ -1537,7 +1578,6 @@ func (h *Handler) CompleteTask(w http.ResponseWriter, r *http.Request) {
 							Metadata: map[string]string{
 								"agent_id": uuidToString(task.AgentID),
 								"task_id":  uuidToString(task.ID),
-								"issue_id": uuidToString(task.IssueID),
 								"status":   task.Status,
 							},
 							Tags: []string{
@@ -1546,8 +1586,8 @@ func (h *Handler) CompleteTask(w http.ResponseWriter, r *http.Request) {
 							},
 						},
 					},
-					Async:    true, // Use async mode for better performance
-					FactType: "experience", // Mark as experience type
+					Async:    true,
+					FactType: "experience",
 				})
 
 				if err != nil {
@@ -1555,6 +1595,10 @@ func (h *Handler) CompleteTask(w http.ResponseWriter, r *http.Request) {
 						"task_id", uuidToString(task.ID),
 						"error", err,
 					)
+				} else {
+					slog.Info("memory retain succeeded",
+						"task_id", uuidToString(task.ID),
+						"bank_id", bankID)
 				}
 			}()
 		}

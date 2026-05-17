@@ -122,6 +122,9 @@ func New(queries *db.Queries, txStarter txStarter, hub *realtime.Hub, bus *event
 			memoryConfig.AuthToken,
 			slog.Default(),
 		)
+		slog.Info("memory client initialized", "base_url", memoryConfig.BaseURL)
+	} else {
+		slog.Warn("memory client disabled", "reason", "no base URL configured")
 	}
 
 	return &Handler{
