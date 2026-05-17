@@ -316,6 +316,8 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 		r.Route("/api/workspaces/{workspaceId}/memories", func(r chi.Router) {
 			r.Use(middleware.RequireWorkspaceMemberFromURL(queries, "workspaceId"))
 			r.Get("/", h.GetMemories)
+			r.Get("/graph", h.GetMemoryGraph)
+			r.Get("/{memoryId}", h.GetMemoryDetail)
 		})
 
 		// User-scoped invitation routes (no workspace context required)
