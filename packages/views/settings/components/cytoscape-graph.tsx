@@ -5,7 +5,7 @@ import cytoscape from "cytoscape";
 import fcose from "cytoscape-fcose";
 import { Loader2 } from "lucide-react";
 import { useMemoryGraphStore } from "@multica/core/memory/graph-store";
-import type { MemoryGraphResponse, MemoryGraphTableRow } from "@multica/core/types/memory";
+import type { MemoryGraphResponse } from "@multica/core/types/memory";
 
 // Register the fcose extension
 cytoscape.use(fcose);

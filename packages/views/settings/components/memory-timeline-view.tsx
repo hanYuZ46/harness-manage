@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { Calendar, ChevronRight, ChevronDown } from "lucide-react";
-import { Button } from "@multica/ui/components/ui/button";
 import { Badge } from "@multica/ui/components/ui/badge";
 import { useMemoryGraphStore } from "@multica/core/memory/graph-store";
 import { useT } from "../../i18n";

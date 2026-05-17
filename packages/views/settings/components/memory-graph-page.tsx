@@ -13,7 +13,7 @@ import { CytoscapeGraph } from "./cytoscape-graph";
 import { MemoryTableView } from "./memory-table-view";
 import { MemoryTimelineView } from "./memory-timeline-view";
 import { MemoryControlPanel } from "./memory-control-panel";
-import type { MemoryGraphTableRow } from "@multica/core/types/memory";
+import { MemoryDetailPanel } from "./memory-detail-panel";
 
 interface MemoryGraphPageProps {
   onClose?: () => void;
@@ -35,7 +35,6 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
     addTag,
     removeTag,
     setViewMode,
-    setSelectedNode,
   } = useMemoryGraphStore();
 
   // Fetch graph data
@@ -50,11 +49,6 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
       useMemoryGraphStore.getState().setGraphData(fetchedData);
     }
   }, [fetchedData]);
-
-  // Handle node selection
-  const handleNodeClick = (node: MemoryGraphTableRow) => {
-    setSelectedNode(node.id);
-  };
 
   if (!workspace) return null;
 
@@ -130,27 +124,8 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
         {/* Right Side: Detail Panel + Control Panel */}
         <div className="flex">
           {/* Detail Panel (shown when node selected) */}
-          {selectedNodeId && (
-            <div className="w-80 border-l border-border overflow-y-auto">
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold">
-                    {t(($) => $.detail_title) || "Memory Details"}
-                  </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedNode(null)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                {/* TODO: Implement MemoryDetailPanel */}
-                <p className="text-sm text-muted-foreground">
-                  Select a node to view details
-                </p>
-              </div>
-            </div>
+          {selectedNodeId && graphData?.table_rows && (
+            <MemoryDetailPanel data={graphData.table_rows} />
           )}
 
           {/* Control Panel (always shown) */}

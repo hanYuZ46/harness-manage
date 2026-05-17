@@ -179,9 +179,6 @@ export function MemoryTableView({ data }: MemoryTableViewProps) {
       },
     },
     enableRowSelection: true,
-    onRowSelectionChange: (updater) => {
-      // Handle row selection if needed
-    },
   });
 
   return (

@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { Brain, Link, Eye, EyeOff } from "lucide-react";
-import { Button } from "@multica/ui/components/ui/button";
 import { Card, CardContent } from "@multica/ui/components/ui/card";
 import { Slider } from "@multica/ui/components/ui/slider";
 import { Switch } from "@multica/ui/components/ui/switch";
