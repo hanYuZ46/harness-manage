@@ -16,8 +16,10 @@ type MemoryItem struct {
 
 // RetainRequest is the request body for storing memories
 type RetainRequest struct {
-	Items []MemoryItem `json:"items"`
-	Async bool         `json:"async,omitempty"`
+	Items        []MemoryItem `json:"items"`
+	Async        bool         `json:"async,omitempty"`
+	FactType     string       `json:"fact_type,omitempty"` // 记忆类型：world | experience
+	DocumentTags []string     `json:"document_tags,omitempty"`
 }
 
 // RetainResponse is the response body for retain operation

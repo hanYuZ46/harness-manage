@@ -1517,11 +1517,11 @@ func (h *Handler) CompleteTask(w http.ResponseWriter, r *http.Request) {
 		issue, err := h.Queries.GetIssue(r.Context(), task.IssueID)
 		if err == nil {
 			bankID := fmt.Sprintf("ws-%s", uuidToString(issue.WorkspaceID))
+			// Memory content in Chinese for better recall with Chinese queries
 			memoryContent := fmt.Sprintf(
-				"Agent %s completed task for issue %s. Input: %s. Output: %s.",
+				"智能体 %s 完成了问题 %s 的任务。执行结果：%s。",
 				uuidToString(task.AgentID),
 				uuidToString(task.IssueID),
-				truncateString(req.Output, 500),
 				truncateString(req.Output, 500),
 			)
 
@@ -1546,7 +1546,8 @@ func (h *Handler) CompleteTask(w http.ResponseWriter, r *http.Request) {
 							},
 						},
 					},
-					Async: false,
+					Async:    true, // Use async mode for better performance
+					FactType: "experience", // Mark as experience type
 				})
 
 				if err != nil {
