@@ -41,6 +41,8 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
   const { data: fetchedData, isLoading, error } = useMemoryGraph(workspace?.id ?? "", {
     limit: nodeLimit,
     type: "experience",
+    q: searchQuery,
+    tags: selectedTags,
   });
 
   // Sync fetched data with Zustand store
