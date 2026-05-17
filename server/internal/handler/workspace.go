@@ -112,6 +112,25 @@ func (h *Handler) ListWorkspaces(w http.ResponseWriter, r *http.Request) {
 		resp[i] = workspaceToResponse(ws)
 	}
 
+	// Async ensure memory bank exists for each workspace (non-blocking)
+	// This handles legacy workspaces created before memory bank integration.
+	if h.MemoryClient != nil && len(workspaces) > 0 {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			for _, ws := range workspaces {
+				bankID := fmt.Sprintf("ws-%s", uuidToString(ws.ID))
+				if err := h.MemoryClient.EnsureBank(ctx, bankID, ws.Name); err != nil {
+					slog.Warn("memory bank ensure failed",
+						"workspace_id", uuidToString(ws.ID),
+						"name", ws.Name,
+						"error", err,
+					)
+				}
+			}
+		}()
+	}
+
 	writeJSON(w, http.StatusOK, resp)
 }
 

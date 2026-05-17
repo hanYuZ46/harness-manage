@@ -93,6 +93,20 @@ func (c *MemoryClient) CreateBank(ctx context.Context, bankID, name string) erro
 	return nil
 }
 
+// EnsureBank exists and creates it if not
+func (c *MemoryClient) EnsureBank(ctx context.Context, bankID, name string) error {
+	// Try to get the bank profile first
+	_, err := c.GetBankProfile(ctx, bankID)
+	if err == nil {
+		// Bank already exists, nothing to do
+		c.logger.Debug("memory bank already exists", "bank_id", bankID)
+		return nil
+	}
+
+	// Bank doesn't exist, create it
+	return c.CreateBank(ctx, bankID, name)
+}
+
 // Retain stores memories to the specified bank
 func (c *MemoryClient) Retain(ctx context.Context, bankID string, req RetainRequest) error {
 	path := fmt.Sprintf("/v1/default/banks/%s/memories", bankID)
