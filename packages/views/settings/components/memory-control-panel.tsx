@@ -15,11 +15,11 @@ const LINK_TYPE_COLORS: Record<string, string> = {
   causal: "#8b5cf6",
 };
 
-const LINK_TYPE_TRANSLATION_KEYS: Record<string, "link_type_semantic" | "link_type_temporal" | "link_type_entity" | "link_type_causal"> = {
-  semantic: "link_type_semantic",
-  temporal: "link_type_temporal",
-  entity: "link_type_entity",
-  causal: "link_type_causal",
+const LINK_TYPE_LABELS: Record<string, string> = {
+  semantic: "Semantic",
+  temporal: "Temporal",
+  entity: "Entity",
+  causal: "Causal",
 };
 
 export function MemoryControlPanel() {
@@ -77,24 +77,20 @@ export function MemoryControlPanel() {
               <div className="text-right font-medium">{totalEdges}</div>
             </div>
             <div className="border-t pt-2 space-y-1">
-              {Object.entries(edgeCounts).map(([type, count]) => {
-                const labelKey = LINK_TYPE_TRANSLATION_KEYS[type];
-                if (!labelKey) return null;
-                return (
-                  <div key={type} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: LINK_TYPE_COLORS[type] }}
-                      />
-                      <span className="text-muted-foreground">
-                        {t(($) => $[labelKey])}
-                      </span>
-                    </div>
-                    <span className="font-medium">{count}</span>
+              {Object.entries(edgeCounts).map(([type, count]) => (
+                <div key={type} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: LINK_TYPE_COLORS[type] }}
+                    />
+                    <span className="text-muted-foreground">
+                      {LINK_TYPE_LABELS[type]}
+                    </span>
                   </div>
-                );
-              })}
+                  <span className="font-medium">{count}</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -109,8 +105,6 @@ export function MemoryControlPanel() {
             <div className="space-y-2">
               {Object.entries(LINK_TYPE_COLORS).map(([type, color]) => {
                 const isSelected = selectedLinkTypes.includes(type);
-                const labelKey = LINK_TYPE_TRANSLATION_KEYS[type];
-                if (!labelKey) return null;
                 return (
                   <div
                     key={type}
@@ -128,7 +122,7 @@ export function MemoryControlPanel() {
                         }}
                       />
                       <span className={isSelected ? "font-medium" : "text-muted-foreground"}>
-                        {t(($) => $[labelKey])}
+                        {LINK_TYPE_LABELS[type]}
                       </span>
                     </button>
                     <span className="text-xs text-muted-foreground">

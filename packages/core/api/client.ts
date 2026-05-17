@@ -87,6 +87,9 @@ import type {
   GitHubPullRequest,
   ListGitHubInstallationsResponse,
   GitHubConnectResponse,
+  MemoryListResponse,
+  MemoryGraphResponse,
+  MemoryDetailResponse,
 } from "../types";
 import type { OnboardingCompletionPath } from "../onboarding/types";
 import { type Logger, noopLogger } from "../logger";
@@ -1389,5 +1392,45 @@ export class ApiClient {
 
   async listIssuePullRequests(issueId: string): Promise<{ pull_requests: GitHubPullRequest[] }> {
     return this.fetch(`/api/issues/${issueId}/pull-requests`);
+  }
+
+  // Memory
+  async listMemories(
+    workspaceId: string,
+    params?: { query?: string; agent_id?: string; tags?: string[] },
+  ): Promise<MemoryListResponse> {
+    const search = new URLSearchParams();
+    if (params?.query) search.set("query", params.query);
+    if (params?.agent_id) search.set("agent_id", params.agent_id);
+    if (params?.tags) params.tags.forEach((tag) => search.append("tags", tag));
+    return this.fetch(`/api/workspaces/${workspaceId}/memories?${search}`);
+  }
+
+  // Memory Graph - proxy via backend to avoid CORS issues
+  async getMemoryGraph(
+    workspaceId: string,
+    params?: { type?: string[]; limit?: number; q?: string; tags?: string[]; tags_match?: "any" | "all" },
+  ): Promise<MemoryGraphResponse> {
+    const search = new URLSearchParams();
+    if (params?.type) params.type.forEach((t) => search.append("type", t));
+    if (params?.limit) search.set("limit", String(params.limit));
+    if (params?.q) search.set("q", params.q);
+    if (params?.tags) params.tags.forEach((tag) => search.append("tags", tag));
+    if (params?.tags_match) search.set("tags_match", params.tags_match);
+
+    // Proxy via backend to avoid CORS issues
+    const url = `/api/workspaces/${workspaceId}/memories/graph?${search}`;
+
+    return this.fetch(url);
+  }
+
+  async getMemoryDetail(
+    workspaceId: string,
+    memoryId: string,
+  ): Promise<MemoryDetailResponse> {
+    // Proxy via backend to avoid CORS issues
+    const url = `/api/workspaces/${workspaceId}/memories/${memoryId}`;
+
+    return this.fetch(url);
   }
 }

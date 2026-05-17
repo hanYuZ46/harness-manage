@@ -134,14 +134,6 @@ func (h *Handler) GetMemoryGraph(w http.ResponseWriter, r *http.Request) {
 	q := queryParams.Get("q")
 	tags := queryParams["tags"]
 
-	// Log received parameters for debugging
-	slog.InfoContext(ctx, "received memory graph request",
-		"graphType", graphType,
-		"limit", limit,
-		"q", q,
-		"tags", tags,
-		"all_query_params", queryParams.Encode())
-
 	// Build upstream URL - use v1 API path
 	memoryServiceURL := "https://enn-memory.dev.ennew.com/v1/default/banks/" + url.PathEscape(bankID) + "/graph"
 	upstreamURL, err := url.Parse(memoryServiceURL)
@@ -166,9 +158,6 @@ func (h *Handler) GetMemoryGraph(w http.ResponseWriter, r *http.Request) {
 		qParams.Add("tags", tag)
 	}
 	upstreamURL.RawQuery = qParams.Encode()
-
-	// Log the full upstream URL for debugging
-	slog.InfoContext(ctx, "proxying memory graph request", "upstream_url", upstreamURL.String(), "query_params", qParams.Encode())
 
 	// Create upstream request
 	upstreamReq, err := http.NewRequestWithContext(ctx, "GET", upstreamURL.String(), nil)

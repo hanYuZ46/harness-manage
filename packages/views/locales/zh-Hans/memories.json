@@ -1,6 +1,5 @@
 {
   "title": "记忆",
-  "space_memory_title": "空间记忆",
   "search_placeholder": "搜索记忆...",
   "search": "搜索",
   "loading": "加载中...",
@@ -9,7 +8,6 @@
   "graph_title": "空间记忆地图",
   "graph_search_placeholder": "搜索图谱...",
   "graph_error": "加载图谱失败",
-  "try_again": "重试",
   "graph_empty": "图谱中没有记忆",
   "add_tag": "添加标签",
   "view_graph": "图谱",

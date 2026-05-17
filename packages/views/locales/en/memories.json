@@ -1,6 +1,5 @@
 {
   "title": "Memories",
-  "space_memory_title": "Spatial Memory",
   "search_placeholder": "Search memories...",
   "search": "Search",
   "loading": "Loading...",
@@ -9,7 +8,6 @@
   "graph_title": "Spatial Memory Map",
   "graph_search_placeholder": "Search graph...",
   "graph_error": "Failed to load graph",
-  "try_again": "Try again",
   "graph_empty": "No memories in graph",
   "add_tag": "Add tag",
   "view_graph": "Graph",

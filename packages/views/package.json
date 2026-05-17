@@ -75,6 +75,8 @@
     "@tiptap/starter-kit": "^3.22.1",
     "@tiptap/suggestion": "^3.22.1",
     "cmdk": "^1.1.1",
+    "cytoscape": "^3.33.3",
+    "cytoscape-fcose": "^2.2.0",
     "hast-util-to-html": "^4.0.1",
     "katex": "catalog:",
     "lowlight": "^3.3.0",

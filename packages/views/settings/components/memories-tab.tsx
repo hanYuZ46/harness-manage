@@ -15,7 +15,7 @@ export function MemoriesTab() {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Brain className="h-5 w-5 text-primary" />
-        <h2 className="text-sm font-semibold">{t(($) => $.space_memory_title)}</h2>
+        <h2 className="text-sm font-semibold">{t(($) => $.title)}</h2>
       </div>
       <MemoryGraphPage />
     </div>
