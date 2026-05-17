@@ -6,8 +6,8 @@ export const memoryKeys = {
   workspace: (workspaceId: string) => [...memoryKeys.all(), workspaceId] as const,
   workspaceQuery: (workspaceId: string, query: string) =>
     [...memoryKeys.workspace(workspaceId), query] as const,
-  graph: (workspaceId: string, q?: string, tags?: string[], type?: string[]) =>
-    [...memoryKeys.all(), "graph", workspaceId, q ?? "", tags?.join(",") ?? "", type?.join(",") ?? ""] as const,
+  graph: (workspaceId: string, q?: string, tags?: string[]) =>
+    [...memoryKeys.all(), "graph", workspaceId, q ?? "", tags?.join(",") ?? ""] as const,
   detail: (bankId: string, memoryId: string) => [...memoryKeys.all(), "detail", bankId, memoryId] as const,
 };
 
@@ -28,7 +28,7 @@ export function memoryGraphOptions(
   params?: { type?: string[]; limit?: number; q?: string; tags?: string[]; tags_match?: "any" | "all" },
 ) {
   return queryOptions({
-    queryKey: memoryKeys.graph(workspaceId, params?.q, params?.tags, params?.type),
+    queryKey: memoryKeys.graph(workspaceId, params?.q, params?.tags),
     queryFn: () => api.getMemoryGraph(workspaceId, params),
   });
 }
