@@ -26,5 +26,6 @@
   "type_world": "World",
   "type_opinion": "Opinion",
   "table_empty": "No memories found",
-  "pagination_info": "Showing {from}-{to} of {total}"
+  "pagination_info": "Showing {from}-{to} of {total}",
+  "timeline_empty": "No timeline events"
 }

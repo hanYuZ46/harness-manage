@@ -26,5 +26,6 @@
   "type_world": "世界",
   "type_opinion": "观点",
   "table_empty": "暂无记忆数据",
-  "pagination_info": "显示 {from}-{to} 共 {total} 条"
+  "pagination_info": "显示 {from}-{to} 共 {total} 条",
+  "timeline_empty": "暂无时间线事件"
 }

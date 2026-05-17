@@ -11,6 +11,7 @@ import { useMemoryGraphStore } from "@multica/core/memory/graph-store";
 import { MemoryFilters } from "./memory-filters";
 import { CytoscapeGraph } from "./cytoscape-graph";
 import { MemoryTableView } from "./memory-table-view";
+import { MemoryTimelineView } from "./memory-timeline-view";
 import type { MemoryGraphTableRow } from "@multica/core/types/memory";
 
 interface MemoryGraphPageProps {
@@ -118,13 +119,8 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
               {viewMode === "table" && graphData?.table_rows && (
                 <MemoryTableView data={graphData.table_rows} />
               )}
-              {viewMode === "timeline" && (
-                <div className="w-full h-full overflow-auto">
-                  {/* TODO: Implement TimelineView */}
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    Timeline view - coming soon
-                  </div>
-                </div>
+              {viewMode === "timeline" && graphData?.table_rows && (
+                <MemoryTimelineView data={graphData.table_rows} />
               )}
             </div>
           )}
