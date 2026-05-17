@@ -186,6 +186,7 @@
     "skills": "skill",
     "environment": "环境变量",
     "custom_args": "自定义参数",
+    "cognitive_memory": "认知记忆",
     "discard_dialog_title": "放弃未保存的修改？",
     "discard_dialog_description": "当前 tab 有未保存的修改，离开会丢弃这些修改。",
     "discard_keep": "继续编辑",

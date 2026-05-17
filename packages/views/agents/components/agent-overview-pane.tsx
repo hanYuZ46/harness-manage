@@ -7,6 +7,7 @@ import {
   FileText,
   KeyRound,
   Terminal,
+  Brain,
 } from "lucide-react";
 import type { Agent, AgentRuntime } from "@multica/core/types";
 import {
@@ -24,6 +25,7 @@ import { InstructionsTab } from "./tabs/instructions-tab";
 import { SkillsTab } from "./tabs/skills-tab";
 import { EnvTab } from "./tabs/env-tab";
 import { CustomArgsTab } from "./tabs/custom-args-tab";
+import { CognitiveMemoryTab } from "./cognitive-memory-tab";
 import { useT } from "../../i18n";
 
 type DetailTab =
@@ -31,14 +33,16 @@ type DetailTab =
   | "instructions"
   | "skills"
   | "env"
-  | "custom_args";
+  | "custom_args"
+  | "cognitive_memory";
 
-const TAB_LABEL_KEY: Record<DetailTab, "activity" | "instructions" | "skills" | "environment" | "custom_args"> = {
+const TAB_LABEL_KEY: Record<DetailTab, "activity" | "instructions" | "skills" | "environment" | "custom_args" | "cognitive_memory"> = {
   activity: "activity",
   instructions: "instructions",
   skills: "skills",
   env: "environment",
   custom_args: "custom_args",
+  cognitive_memory: "cognitive_memory",
 };
 
 const detailTabs: {
@@ -50,6 +54,7 @@ const detailTabs: {
   { id: "skills", icon: BookOpenText },
   { id: "env", icon: KeyRound },
   { id: "custom_args", icon: Terminal },
+  { id: "cognitive_memory", icon: Brain },
 ];
 
 interface AgentOverviewPaneProps {
@@ -175,6 +180,11 @@ export function AgentOverviewPane({
               onDirtyChange={setActiveDirty}
             />
           </TabContent>
+        )}
+        {activeTab === "cognitive_memory" && (
+          <div className="flex h-full flex-col">
+            <CognitiveMemoryTab agentId={agent.id} />
+          </div>
         )}
       </div>
 

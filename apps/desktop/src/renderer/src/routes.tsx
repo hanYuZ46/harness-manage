@@ -20,6 +20,7 @@ import { MyIssuesPage } from "@multica/views/my-issues";
 import { SkillsPage } from "@multica/views/skills";
 import { DesktopRuntimesPage } from "./components/desktop-runtimes-page";
 import { AgentsPage } from "@multica/views/agents";
+import { MemoryPage } from "@multica/views/memory";
 import { InboxPage } from "@multica/views/inbox";
 import { SettingsPage } from "@multica/views/settings";
 import { ErrorBoundary } from "@multica/ui/components/common/error-boundary";
@@ -145,6 +146,11 @@ export const appRoutes: RouteObject[] = [
             path: "agents/:id",
             element: <AgentDetailPage />,
             handle: { title: "Agent" },
+          },
+          {
+            path: "memory",
+            element: <MemoryPage />,
+            handle: { title: "Spatial Memory" },
           },
           { path: "inbox", element: <InboxPage />, handle: { title: "Inbox" } },
           {

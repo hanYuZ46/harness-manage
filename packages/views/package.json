@@ -38,6 +38,7 @@
     "./search": "./search/index.ts",
     "./chat": "./chat/index.ts",
     "./settings": "./settings/index.ts",
+    "./memory": "./memory/index.ts",
     "./invite": "./invite/index.ts",
     "./invitations": "./invitations/index.ts",
     "./onboarding": "./onboarding/index.ts",
