@@ -87,6 +87,7 @@ import type {
   GitHubPullRequest,
   ListGitHubInstallationsResponse,
   GitHubConnectResponse,
+  MemoryListResponse,
 } from "../types";
 import type { OnboardingCompletionPath } from "../onboarding/types";
 import { type Logger, noopLogger } from "../logger";
@@ -1389,5 +1390,17 @@ export class ApiClient {
 
   async listIssuePullRequests(issueId: string): Promise<{ pull_requests: GitHubPullRequest[] }> {
     return this.fetch(`/api/issues/${issueId}/pull-requests`);
+  }
+
+  // Memory
+  async listMemories(
+    workspaceId: string,
+    params?: { query?: string; agent_id?: string; tags?: string[] },
+  ): Promise<MemoryListResponse> {
+    const search = new URLSearchParams();
+    if (params?.query) search.set("query", params.query);
+    if (params?.agent_id) search.set("agent_id", params.agent_id);
+    if (params?.tags) params.tags.forEach((tag) => search.append("tags", tag));
+    return this.fetch(`/api/workspaces/${workspaceId}/memories?${search}`);
   }
 }

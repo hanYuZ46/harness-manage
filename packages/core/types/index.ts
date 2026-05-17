@@ -94,3 +94,4 @@ export type {
   GetAutopilotResponse,
   ListAutopilotRunsResponse,
 } from "./autopilot";
+export type { MemoryItem, MemoryListResponse, MemoryRecallRequest } from "./memory";
