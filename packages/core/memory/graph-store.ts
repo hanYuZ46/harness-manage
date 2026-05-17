@@ -25,9 +25,11 @@ export interface MemoryGraphState {
   // Actions
   setGraphData: (data: MemoryGraphResponse | null) => void;
   setSearchQuery: (query: string) => void;
+  setSelectedTags: (tags: string[]) => void;
   addTag: (tag: string) => void;
   removeTag: (tag: string) => void;
   clearTags: () => void;
+  clearSelectedTags: () => void;
   setViewMode: (mode: MemoryGraphViewMode) => void;
   setNodeLimit: (limit: number) => void;
   toggleShowLabels: () => void;
@@ -72,6 +74,10 @@ export const useMemoryGraphStore = create<MemoryGraphState>((set, get) => ({
     set({ searchQuery: query });
   },
 
+  setSelectedTags: (tags) => {
+    set({ selectedTags: tags });
+  },
+
   addTag: (tag) => {
     const { selectedTags } = get();
     if (!selectedTags.includes(tag)) {
@@ -85,6 +91,10 @@ export const useMemoryGraphStore = create<MemoryGraphState>((set, get) => ({
   },
 
   clearTags: () => {
+    set({ selectedTags: [] });
+  },
+
+  clearSelectedTags: () => {
     set({ selectedTags: [] });
   },
 
