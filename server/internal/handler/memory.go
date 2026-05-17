@@ -10,8 +10,8 @@ import (
 
 // MemoryListResponse is the response for listing memories
 type MemoryListResponse struct {
-	Memories []service.MemoryItem `json:"memories"`
-	Total    int                  `json:"total"`
+	Memories []service.MemoryResult `json:"memories"`
+	Total    int                    `json:"total"`
 }
 
 // GetMemories retrieves memories from the workspace's memory bank

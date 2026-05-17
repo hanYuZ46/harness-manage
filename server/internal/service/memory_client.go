@@ -106,7 +106,7 @@ func (c *MemoryClient) Retain(ctx context.Context, bankID string, req RetainRequ
 }
 
 // Recall searches memories in the specified bank
-func (c *MemoryClient) Recall(ctx context.Context, bankID string, req RecallRequest) ([]MemoryItem, error) {
+func (c *MemoryClient) Recall(ctx context.Context, bankID string, req RecallRequest) ([]MemoryResult, error) {
 	path := fmt.Sprintf("/v1/default/banks/%s/memories/recall", bankID)
 	respBody, err := c.doRequest(ctx, http.MethodPost, path, req)
 	if err != nil {
@@ -118,7 +118,7 @@ func (c *MemoryClient) Recall(ctx context.Context, bankID string, req RecallRequ
 		return nil, fmt.Errorf("unmarshal recall response: %w", err)
 	}
 
-	return recallResp.Memories, nil
+	return recallResp.Results, nil
 }
 
 // GetBankProfile retrieves the profile of a memory bank

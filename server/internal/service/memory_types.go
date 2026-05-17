@@ -36,9 +36,24 @@ type RecallRequest struct {
 }
 
 // RecallResponse is the response body for recall operation
+// Note: The enn-memory service returns results in a complex structure
 type RecallResponse struct {
-	Memories []MemoryItem `json:"memories"`
-	Query    string       `json:"query"`
+	Results      []MemoryResult `json:"results"`
+	Trace        interface{}    `json:"trace"`
+	Entities     interface{}    `json:"entities"`
+	Chunks       interface{}    `json:"chunks"`
+	SourceFacts  interface{}    `json:"source_facts"`
+}
+
+// MemoryResult represents a single memory result from recall
+type MemoryResult struct {
+	ID        string            `json:"id,omitempty"`
+	Content   string            `json:"content"`
+	Context   string            `json:"context,omitempty"`
+	Metadata  map[string]string `json:"metadata,omitempty"`
+	Tags      []string          `json:"tags,omitempty"`
+	Timestamp *time.Time        `json:"timestamp,omitempty"`
+	Score     float64           `json:"score,omitempty"`
 }
 
 // CreateBankRequest is the request body for creating a memory bank
