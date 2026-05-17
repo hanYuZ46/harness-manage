@@ -82,3 +82,175 @@ describe("clampNodeLimit", () => {
     expect(clampNodeLimit(50)).toBe(50);
   });
 });
+
+describe("setGraphData", () => {
+  it("should set graph data", () => {
+    useMemoryGraphStore.getState().reset();
+
+    const mockData = { nodes: [], table_rows: [] };
+    useMemoryGraphStore.getState().setGraphData(mockData);
+
+    expect(useMemoryGraphStore.getState().graphData).toEqual(mockData);
+  });
+
+  it("should set graph data to null", () => {
+    useMemoryGraphStore.getState().reset();
+
+    useMemoryGraphStore.getState().setGraphData(null);
+
+    expect(useMemoryGraphStore.getState().graphData).toBeNull();
+  });
+});
+
+describe("setViewMode", () => {
+  it("should set view mode to graph", () => {
+    useMemoryGraphStore.getState().reset();
+
+    useMemoryGraphStore.getState().setViewMode("graph");
+
+    expect(useMemoryGraphStore.getState().viewMode).toBe("graph");
+  });
+
+  it("should set view mode to table", () => {
+    useMemoryGraphStore.getState().reset();
+
+    useMemoryGraphStore.getState().setViewMode("table");
+
+    expect(useMemoryGraphStore.getState().viewMode).toBe("table");
+  });
+
+  it("should set view mode to timeline", () => {
+    useMemoryGraphStore.getState().reset();
+
+    useMemoryGraphStore.getState().setViewMode("timeline");
+
+    expect(useMemoryGraphStore.getState().viewMode).toBe("timeline");
+  });
+});
+
+describe("toggleShowLabels", () => {
+  it("should toggle showLabels from true to false", () => {
+    useMemoryGraphStore.getState().reset();
+
+    expect(useMemoryGraphStore.getState().showLabels).toBe(true);
+    useMemoryGraphStore.getState().toggleShowLabels();
+    expect(useMemoryGraphStore.getState().showLabels).toBe(false);
+  });
+
+  it("should toggle showLabels from false to true", () => {
+    useMemoryGraphStore.getState().reset();
+    useMemoryGraphStore.getState().toggleShowLabels();
+
+    expect(useMemoryGraphStore.getState().showLabels).toBe(false);
+    useMemoryGraphStore.getState().toggleShowLabels();
+    expect(useMemoryGraphStore.getState().showLabels).toBe(true);
+  });
+});
+
+describe("setSelectedNode and setFocusedNode", () => {
+  it("should set selected node id", () => {
+    useMemoryGraphStore.getState().reset();
+
+    useMemoryGraphStore.getState().setSelectedNode("node-1");
+
+    expect(useMemoryGraphStore.getState().selectedNodeId).toBe("node-1");
+  });
+
+  it("should set focused node id", () => {
+    useMemoryGraphStore.getState().reset();
+
+    useMemoryGraphStore.getState().setFocusedNode("node-2");
+
+    expect(useMemoryGraphStore.getState().focusedNodeId).toBe("node-2");
+  });
+
+  it("should set selected node id to null", () => {
+    useMemoryGraphStore.getState().reset();
+    useMemoryGraphStore.getState().setSelectedNode("node-1");
+
+    useMemoryGraphStore.getState().setSelectedNode(null);
+
+    expect(useMemoryGraphStore.getState().selectedNodeId).toBeNull();
+  });
+
+  it("should set focused node id to null", () => {
+    useMemoryGraphStore.getState().reset();
+    useMemoryGraphStore.getState().setFocusedNode("node-2");
+
+    useMemoryGraphStore.getState().setFocusedNode(null);
+
+    expect(useMemoryGraphStore.getState().focusedNodeId).toBeNull();
+  });
+});
+
+describe("toggleLinkType", () => {
+  it("should remove link type if already selected", () => {
+    useMemoryGraphStore.getState().reset();
+
+    expect(useMemoryGraphStore.getState().selectedLinkTypes).toContain("semantic");
+    useMemoryGraphStore.getState().toggleLinkType("semantic");
+    expect(useMemoryGraphStore.getState().selectedLinkTypes).not.toContain("semantic");
+  });
+
+  it("should add link type if not selected", () => {
+    useMemoryGraphStore.getState().reset();
+
+    useMemoryGraphStore.getState().toggleLinkType("custom");
+
+    expect(useMemoryGraphStore.getState().selectedLinkTypes).toContain("custom");
+  });
+
+  it("should not remove the last link type", () => {
+    useMemoryGraphStore.getState().reset();
+
+    // Remove three link types, leaving only "causal"
+    useMemoryGraphStore.getState().toggleLinkType("semantic");
+    useMemoryGraphStore.getState().toggleLinkType("temporal");
+    useMemoryGraphStore.getState().toggleLinkType("entity");
+
+    // Should have only "causal" left
+    expect(useMemoryGraphStore.getState().selectedLinkTypes).toEqual(["causal"]);
+
+    // Try to remove the last one - should not work
+    useMemoryGraphStore.getState().toggleLinkType("causal");
+
+    expect(useMemoryGraphStore.getState().selectedLinkTypes).toEqual(["causal"]);
+  });
+});
+
+describe("clearTags", () => {
+  it("should clear all selected tags", () => {
+    useMemoryGraphStore.getState().reset();
+    useMemoryGraphStore.getState().addTag("tag1");
+    useMemoryGraphStore.getState().addTag("tag2");
+
+    useMemoryGraphStore.getState().clearTags();
+
+    expect(useMemoryGraphStore.getState().selectedTags).toEqual([]);
+  });
+});
+
+describe("reset", () => {
+  it("should reset all state to initial values", () => {
+    useMemoryGraphStore.getState().setGraphData({ nodes: [], table_rows: [] });
+    useMemoryGraphStore.getState().setSearchQuery("test");
+    useMemoryGraphStore.getState().addTag("tag1");
+    useMemoryGraphStore.getState().setViewMode("table");
+    useMemoryGraphStore.getState().setNodeLimit(40);
+    useMemoryGraphStore.getState().toggleShowLabels();
+    useMemoryGraphStore.getState().setSelectedNode("node-1");
+    useMemoryGraphStore.getState().setFocusedNode("node-2");
+
+    useMemoryGraphStore.getState().reset();
+
+    const state = useMemoryGraphStore.getState();
+    expect(state.graphData).toBeNull();
+    expect(state.searchQuery).toBe("");
+    expect(state.selectedTags).toEqual([]);
+    expect(state.viewMode).toBe("graph");
+    expect(state.nodeLimit).toBe(30);
+    expect(state.showLabels).toBe(true);
+    expect(state.selectedNodeId).toBeNull();
+    expect(state.focusedNodeId).toBeNull();
+  });
+});
