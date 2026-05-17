@@ -44,6 +44,8 @@ import { ModelPicker } from "./inspector/model-picker";
 import { RuntimePicker } from "./inspector/runtime-picker";
 import { SkillAttach } from "./inspector/skill-attach";
 import { VisibilityPicker } from "./inspector/visibility-picker";
+import { CognitiveMemoryTab } from "./cognitive-memory-tab";
+import { Tabs, TabsList, TabsTrigger } from "@multica/ui/components/ui/tabs";
 
 interface InspectorProps {
   agent: Agent;
@@ -93,6 +95,7 @@ export function AgentDetailInspector({
   const { t } = useT("agents");
   const update = (data: Record<string, unknown>) => onUpdate(agent.id, data);
   const isOnline = runtime?.status === "online";
+  const [activeTab, setActiveTab] = useState<"properties" | "memory">("properties");
 
   return (
     <aside className="flex w-full flex-col rounded-lg border bg-background md:h-full md:min-h-0 md:overflow-y-auto">
@@ -107,93 +110,115 @@ export function AgentDetailInspector({
         <PresenceBadge presence={presence} />
       </div>
 
-      {/* Properties — editable when canEdit. When the current user lacks
-          permission, each picker self-renders a static read-only display so
-          the value is visible but not interactive. */}
-      <Section label={t(($) => $.inspector.section_properties)}>
-        <PropRow label={t(($) => $.inspector.prop_runtime)} interactive={false}>
-          <RuntimePicker
-            value={agent.runtime_id}
-            runtimes={runtimes}
-            members={members}
-            currentUserId={currentUserId}
-            canEdit={canEdit}
-            onChange={(id) => update({ runtime_id: id })}
-          />
-        </PropRow>
-        <PropRow label={t(($) => $.inspector.prop_model)} interactive={false}>
-          <ModelPicker
-            runtimeId={agent.runtime_id}
-            runtimeOnline={!!isOnline}
-            value={agent.model ?? ""}
-            canEdit={canEdit}
-            onChange={(m) => update({ model: m })}
-          />
-        </PropRow>
-        <PropRow label={t(($) => $.inspector.prop_visibility)} interactive={false}>
-          <VisibilityPicker
-            value={agent.visibility}
-            canEdit={canEdit}
-            onChange={(v) => update({ visibility: v })}
-          />
-        </PropRow>
-        <PropRow label={t(($) => $.inspector.prop_concurrency)} interactive={false}>
-          <ConcurrencyPicker
-            value={agent.max_concurrent_tasks}
-            canEdit={canEdit}
-            onChange={(n) => update({ max_concurrent_tasks: n })}
-          />
-        </PropRow>
-      </Section>
-
-      {/* Details — read-only (no hover, no chip styling — these aren't clickable) */}
-      <Section label={t(($) => $.inspector.section_details)}>
-        {owner && (
-          <PropRow label={t(($) => $.inspector.prop_owner)} interactive={false}>
-            <span className="flex min-w-0 items-center gap-1.5">
-              <ActorAvatar
-                actorType="member"
-                actorId={owner.user_id}
-                size={14}
-              />
-              <span className="truncate">{owner.name}</span>
-            </span>
-          </PropRow>
-        )}
-        <PropRow label={t(($) => $.inspector.prop_created)} interactive={false}>
-          <span className="text-muted-foreground">
-            {timeAgo(agent.created_at)}
-          </span>
-        </PropRow>
-        <PropRow label={t(($) => $.inspector.prop_updated)} interactive={false}>
-          <span className="text-muted-foreground">
-            {timeAgo(agent.updated_at)}
-          </span>
-        </PropRow>
-      </Section>
-
-      {/* Skills */}
-      <div className="flex flex-col border-b px-5 py-4">
-        <div className="mb-2 flex items-center gap-2">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            {t(($) => $.inspector.section_skills)}
-          </span>
-          <span className="font-mono text-[10px] tabular-nums text-muted-foreground/70">
-            {agent.skills.length}
-          </span>
-        </div>
-        <div className="flex flex-wrap gap-1">
-          {agent.skills.map((s) => (
-            <span
-              key={s.id}
-              className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground"
-            >
-              {s.name}
-            </span>
-          ))}
-          <SkillAttach agent={agent} canEdit={canEdit} />
-        </div>
+      {/* Tab Switcher */}
+      <div className="border-b px-5 py-3">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "properties" | "memory")}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="properties">
+              {t(($) => $.inspector.section_properties)}
+            </TabsTrigger>
+            <TabsTrigger value="memory">
+              {t(($) => $.inspector.section_cognitive_memory)}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
+
+      {/* Tab Content */}
+      {activeTab === "properties" ? (
+        <>
+          {/* Properties */}
+          <Section label={t(($) => $.inspector.section_properties)}>
+            <PropRow label={t(($) => $.inspector.prop_runtime)} interactive={false}>
+              <RuntimePicker
+                value={agent.runtime_id}
+                runtimes={runtimes}
+                members={members}
+                currentUserId={currentUserId}
+                canEdit={canEdit}
+                onChange={(id) => update({ runtime_id: id })}
+              />
+            </PropRow>
+            <PropRow label={t(($) => $.inspector.prop_model)} interactive={false}>
+              <ModelPicker
+                runtimeId={agent.runtime_id}
+                runtimeOnline={!!isOnline}
+                value={agent.model ?? ""}
+                canEdit={canEdit}
+                onChange={(m) => update({ model: m })}
+              />
+            </PropRow>
+            <PropRow label={t(($) => $.inspector.prop_visibility)} interactive={false}>
+              <VisibilityPicker
+                value={agent.visibility}
+                canEdit={canEdit}
+                onChange={(v) => update({ visibility: v })}
+              />
+            </PropRow>
+            <PropRow label={t(($) => $.inspector.prop_concurrency)} interactive={false}>
+              <ConcurrencyPicker
+                value={agent.max_concurrent_tasks}
+                canEdit={canEdit}
+                onChange={(n) => update({ max_concurrent_tasks: n })}
+              />
+            </PropRow>
+          </Section>
+
+          {/* Details */}
+          <Section label={t(($) => $.inspector.section_details)}>
+            {owner && (
+              <PropRow label={t(($) => $.inspector.prop_owner)} interactive={false}>
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <ActorAvatar
+                    actorType="member"
+                    actorId={owner.user_id}
+                    size={14}
+                  />
+                  <span className="truncate">{owner.name}</span>
+                </span>
+              </PropRow>
+            )}
+            <PropRow label={t(($) => $.inspector.prop_created)} interactive={false}>
+              <span className="text-muted-foreground">
+                {timeAgo(agent.created_at)}
+              </span>
+            </PropRow>
+            <PropRow label={t(($) => $.inspector.prop_updated)} interactive={false}>
+              <span className="text-muted-foreground">
+                {timeAgo(agent.updated_at)}
+              </span>
+            </PropRow>
+          </Section>
+
+          {/* Skills */}
+          <div className="flex flex-col border-b px-5 py-4">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                {t(($) => $.inspector.section_skills)}
+              </span>
+              <span className="font-mono text-[10px] tabular-nums text-muted-foreground/70">
+                {agent.skills.length}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {agent.skills.map((s) => (
+                <span
+                  key={s.id}
+                  className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground"
+                >
+                  {s.name}
+                </span>
+              ))}
+              <SkillAttach agent={agent} canEdit={canEdit} />
+            </div>
+          </div>
+        </>
+      ) : (
+        /* Cognitive Memory Tab */
+        <div className="flex flex-col">
+          <CognitiveMemoryTab agentId={agent.id} />
+        </div>
+      )}
     </aside>
   );
 }
