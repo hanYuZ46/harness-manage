@@ -27,5 +27,10 @@
   "type_opinion": "观点",
   "table_empty": "暂无记忆数据",
   "pagination_info": "显示 {from}-{to} 共 {total} 条",
-  "timeline_empty": "暂无时间线事件"
+  "timeline_empty": "暂无时间线事件",
+  "stats_title": "图谱统计",
+  "link_types": "链接类型",
+  "display": "显示",
+  "node_limit": "节点限制",
+  "show_labels": "显示标签"
 }

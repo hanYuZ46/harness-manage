@@ -12,6 +12,7 @@ import { MemoryFilters } from "./memory-filters";
 import { CytoscapeGraph } from "./cytoscape-graph";
 import { MemoryTableView } from "./memory-table-view";
 import { MemoryTimelineView } from "./memory-timeline-view";
+import { MemoryControlPanel } from "./memory-control-panel";
 import type { MemoryGraphTableRow } from "@multica/core/types/memory";
 
 interface MemoryGraphPageProps {
@@ -126,29 +127,35 @@ export function MemoryGraphPage({ onClose }: MemoryGraphPageProps) {
           )}
         </div>
 
-        {/* Detail Panel (right side, shown when node selected) */}
-        {selectedNodeId && (
-          <div className="w-80 border-l border-border overflow-y-auto">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold">
-                  {t(($) => $.detail_title) || "Memory Details"}
-                </h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedNode(null)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+        {/* Right Side: Detail Panel + Control Panel */}
+        <div className="flex">
+          {/* Detail Panel (shown when node selected) */}
+          {selectedNodeId && (
+            <div className="w-80 border-l border-border overflow-y-auto">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold">
+                    {t(($) => $.detail_title) || "Memory Details"}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedNode(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                {/* TODO: Implement MemoryDetailPanel */}
+                <p className="text-sm text-muted-foreground">
+                  Select a node to view details
+                </p>
               </div>
-              {/* TODO: Implement MemoryDetailPanel */}
-              <p className="text-sm text-muted-foreground">
-                Select a node to view details
-              </p>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Control Panel (always shown) */}
+          <MemoryControlPanel />
+        </div>
       </div>
 
       {/* Status Bar */}
