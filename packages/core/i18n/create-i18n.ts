@@ -20,6 +20,6 @@ export function createI18n(
     initAsync: false,
     react: { useSuspense: false },
   });
-  console.log('[createI18n] After init - isInitialized:', instance.isInitialized, 'has reactor:', !!instance.reactor);
+  console.log('[createI18n] After init - isInitialized:', instance.isInitialized);
   return instance;
 }
