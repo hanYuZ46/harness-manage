@@ -78,6 +78,30 @@ install_cli_brew() {
   else
     ok "harness-manager CLI installed via Homebrew"
   fi
+
+  # Create harness-manager symlink (Homebrew package is named 'multica')
+  create_harness_manager_symlink
+}
+
+create_harness_manager_symlink() {
+  # Try to create symlink for harness-manager command
+  if [ -f /usr/local/bin/multica ]; then
+    if [ ! -f /usr/local/bin/harness-manager ]; then
+      ln -sf /usr/local/bin/multica /usr/local/bin/harness-manager 2>/dev/null && \
+        ok "Created harness-manager symlink in /usr/local/bin" || \
+        sudo ln -sf /usr/local/bin/multica /usr/local/bin/harness-manager 2>/dev/null && \
+        ok "Created harness-manager symlink in /usr/local/bin (with sudo)" || \
+        warn "Could not create harness-manager symlink"
+    fi
+  elif [ -f /opt/homebrew/bin/multica ]; then
+    if [ ! -f /opt/homebrew/bin/harness-manager ]; then
+      ln -sf /opt/homebrew/bin/multica /opt/homebrew/bin/harness-manager 2>/dev/null && \
+        ok "Created harness-manager symlink in /opt/homebrew/bin" || \
+        sudo ln -sf /opt/homebrew/bin/multica /opt/homebrew/bin/harness-manager 2>/dev/null && \
+        ok "Created harness-manager symlink in /opt/homebrew/bin (with sudo)" || \
+        warn "Could not create harness-manager symlink"
+    fi
+  fi
 }
 
 install_cli_binary() {
@@ -237,9 +261,13 @@ install_cli() {
     install_cli_binary
   fi
 
-  # Verify
+  # Verify harness-manager command is available
   if ! command_exists harness-manager; then
-    fail "CLI installed but 'harness-manager' not found on PATH. You may need to restart your shell."
+    # Try to create symlink if multica exists
+    create_harness_manager_symlink
+    if ! command_exists harness-manager; then
+      fail "CLI installed but 'harness-manager' not found on PATH. You may need to restart your shell."
+    fi
   fi
 }
 
