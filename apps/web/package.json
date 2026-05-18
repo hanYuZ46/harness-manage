@@ -23,6 +23,8 @@
     "@multica/views": "workspace:*",
     "@tanstack/react-query": "^5.96.2",
     "@tanstack/react-query-devtools": "^5.96.2",
+    "i18next": "catalog:",
+    "react-i18next": "catalog:",
     "@tiptap/extension-code-block-lowlight": "^3.22.1",
     "@tiptap/extension-image": "^3.22.1",
     "@tiptap/extension-link": "^3.22.1",
