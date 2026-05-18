@@ -56,14 +56,12 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy standalone output (includes traced node_modules)
+# Copy standalone output (includes traced node_modules + locale JSON files)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 # Copy static files (not included in standalone)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 # Copy public assets
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
-# Copy locales directory (translation JSON files for i18n)
-COPY --from=builder --chown=nextjs:nodejs /app/packages/views/locales ./packages/views/locales
 
 USER nextjs
 
