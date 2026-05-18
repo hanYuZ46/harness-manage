@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Zap, Play, Pause, AlertCircle, Newspaper, GitPullRequest, Bug, BarChart3, Shield, FileSearch } from "lucide-react";
+import { Plus, Zap, Play, Pause, AlertCircle, Brain, Sparkles, ClipboardCheck, Award, GitPullRequest, RefreshCcw } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { autopilotListOptions } from "@multica/core/autopilots/queries";
 import { useWorkspaceId } from "@multica/core/hooks";
@@ -22,12 +22,12 @@ import { useT } from "../../i18n";
 // because they're injected directly into the agent's task input — translating
 // them would also translate the agent's instructions.
 type TemplateId =
-  | "daily_news"
-  | "pr_review"
-  | "bug_triage"
-  | "weekly_progress"
-  | "dependency_audit"
-  | "documentation_check";
+  | "skill_evaluation"
+  | "dream_mode"
+  | "task_inspection"
+  | "deliverable_quality"
+  | "pattern_extraction"
+  | "self_improvement";
 
 interface AutopilotTemplate {
   id: TemplateId;
@@ -39,71 +39,76 @@ interface AutopilotTemplate {
 
 const TEMPLATES: AutopilotTemplate[] = [
   {
-    id: "daily_news",
-    prompt: `1. Search the web for news and announcements published today only (strictly today's date)
-2. Filter for topics relevant to our team and industry
-3. For each item, write a short summary including: title, source, key takeaways
-4. Compile everything into a single digest post
-5. Post the digest as a comment on this issue and @mention all workspace members`,
-    icon: Newspaper,
+    id: "skill_evaluation",
+    prompt: `1. Review all task runs completed by each skill in the past 7 days
+2. For each skill, calculate success rate, average quality score, and user feedback trends
+3. Identify underperforming skills (success rate < 70% or declining quality)
+4. For each underperforming skill, analyze failure patterns and root causes
+5. Propose replacements: search the pattern store for better alternatives, or draft improved instructions
+6. Post a report on this issue listing: skills to keep, skills to update, skills to retire, and proposed replacements with confidence scores`,
+    icon: Award,
+    frequency: "weekly",
+    time: "09:00",
+  },
+  {
+    id: "dream_mode",
+    prompt: `1. Enter offline reflection mode (no external API calls or tool invocations)
+2. Replay recent task trajectories from memory (last 24-48 hours)
+3. Run consolidation: extract common patterns, identify repeated mistakes
+4. Update internal weights via EWC++ — preserve important learned patterns while integrating new ones
+5. Generate a "dream journal" entry summarizing insights gained
+6. Post the journal as a comment on this issue, tagged with [Dream Mode]`,
+    icon: Brain,
     frequency: "daily",
-    time: "09:00",
+    time: "03:00",
   },
   {
-    id: "pr_review",
-    prompt: `1. List all open pull requests in the repository
-2. Identify PRs that have been open for more than 24 hours without a review
-3. For each stale PR, note the author, age, and a one-line summary of the change
-4. Post a comment on this issue listing all stale PRs with links
-5. @mention the team to remind them to review`,
+    id: "task_inspection",
+    prompt: `1. List all issues with status "done" completed in the past 7 days
+2. For each issue, read the full transcript: original request, agent reasoning, tool calls, final output
+3. Identify patterns: common success factors, recurring blockers, efficient vs inefficient flows
+4. Flag any issues where the agent took unnecessary detours or made avoidable mistakes
+5. Extract 3-5 actionable insights for improving agent behavior
+6. Post an inspection report on this issue with specific examples and recommendations`,
+    icon: ClipboardCheck,
+    frequency: "weekly",
+    time: "16:00",
+  },
+  {
+    id: "deliverable_quality",
+    prompt: `1. Review all agent outputs from the past 7 days (code, documents, plans, summaries)
+2. Score each deliverable on: correctness, completeness, clarity, and actionability (1-5 scale)
+3. Identify the top 3 and bottom 3 outputs with explanations
+4. For low-quality outputs, analyze what went wrong: missing context, wrong tool, ambiguous prompt
+5. Propose quality gates: checkpoints the agent should verify before marking a task complete
+6. Post a quality report on this issue with scores, examples, and proposed gates`,
     icon: GitPullRequest,
-    frequency: "weekdays",
-    time: "10:00",
-  },
-  {
-    id: "bug_triage",
-    prompt: `1. List all issues with status "triage" or "backlog" that have not been prioritized
-2. For each issue, read the description and any attached logs or screenshots
-3. Assess severity (critical / high / medium / low) based on user impact and scope
-4. Set the priority field on the issue accordingly
-5. Add a comment explaining your assessment and suggested next steps`,
-    icon: Bug,
-    frequency: "weekdays",
-    time: "09:00",
-  },
-  {
-    id: "weekly_progress",
-    prompt: `1. Gather all issues completed (status "done") in the past 7 days
-2. Gather all issues currently in progress
-3. Identify any blocked issues and their blockers
-4. Calculate key metrics: issues closed, issues opened, net change
-5. Write a structured weekly report with sections: Completed, In Progress, Blocked, Metrics
-6. Post the report as a comment on this issue`,
-    icon: BarChart3,
     frequency: "weekly",
-    time: "17:00",
+    time: "15:00",
   },
   {
-    id: "dependency_audit",
-    prompt: `1. Run dependency audit tools on the project (npm audit, go vuln check, etc.)
-2. Identify any packages with known security vulnerabilities
-3. List outdated packages that are more than 2 major versions behind
-4. For each finding, note the severity, affected package, and recommended fix
-5. Post a summary report as a comment with actionable items`,
-    icon: Shield,
+    id: "pattern_extraction",
+    prompt: `1. Identify all successful task completions from the past 7 days (quality score >= 4.0)
+2. For each success, extract the key steps, decisions, and tool sequences that led to success
+3. Abstract into reusable patterns: name, when to use, step-by-step recipe, common pitfalls
+4. Check the pattern store for duplicates or overlapping patterns
+5. Submit new patterns to the ReasoningBank with confidence scores and usage examples
+6. Post a summary on this issue listing all extracted patterns with their IDs and intended use cases`,
+    icon: Sparkles,
     frequency: "weekly",
-    time: "08:00",
+    time: "11:00",
   },
   {
-    id: "documentation_check",
-    prompt: `1. List all code changes merged in the past 7 days (via git log)
-2. For each significant change, check if related documentation was updated
-3. Identify any new APIs, config options, or features missing documentation
-4. Create a list of documentation gaps with file paths and suggested content
-5. Post the findings as a comment on this issue`,
-    icon: FileSearch,
+    id: "self_improvement",
+    prompt: `1. ANALYZE: Review all task outcomes from the past 7 days — successes, failures, escalations
+2. LEARN: Run a SONA learning cycle on the trajectory data; update pattern weights with EWC++ consolidation
+3. UPDATE: Modify agent instructions based on learned insights; add new skills or retire obsolete ones
+4. VALIDATE: Run 3 test tasks to verify improvements didn't break existing capabilities
+5. DOCUMENT: Write a changelog entry summarizing what changed and why
+6. Post a self-improvement report on this issue with: metrics before/after, changes made, validation results`,
+    icon: RefreshCcw,
     frequency: "weekly",
-    time: "14:00",
+    time: "18:00",
   },
 ];
 

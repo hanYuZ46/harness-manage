@@ -32,29 +32,29 @@
     "months_ago": "{{count}}mo ago"
   },
   "templates": {
-    "daily_news": {
-      "title": "Daily news digest",
-      "summary": "Search and summarize today's news for the team"
+    "skill_evaluation": {
+      "title": "Skill effectiveness evaluation",
+      "summary": "Evaluate and replace underperforming skills based on task outcomes"
     },
-    "pr_review": {
-      "title": "PR review reminder",
-      "summary": "Flag stale pull requests that need review"
+    "dream_mode": {
+      "title": "Dream mode",
+      "summary": "Run offline reflection and consolidation cycles for agent learning"
     },
-    "bug_triage": {
-      "title": "Bug triage",
-      "summary": "Assess and prioritize new bug reports"
+    "task_inspection": {
+      "title": "Task inspection",
+      "summary": "Review completed tasks for patterns and improvement opportunities"
     },
-    "weekly_progress": {
-      "title": "Weekly progress report",
-      "summary": "Compile a weekly summary of team progress"
+    "deliverable_quality": {
+      "title": "Deliverable quality check",
+      "summary": "Assess the quality of agent outputs and identify improvement areas"
     },
-    "dependency_audit": {
-      "title": "Dependency audit",
-      "summary": "Scan for security vulnerabilities and outdated packages"
+    "pattern_extraction": {
+      "title": "Pattern extraction",
+      "summary": "Extract reusable patterns from successful task completions"
     },
-    "documentation_check": {
-      "title": "Documentation check",
-      "summary": "Review recent changes for documentation gaps"
+    "self_improvement": {
+      "title": "Self-improvement cycle",
+      "summary": "Run a full self-improvement loop: analyze, learn, and update"
     }
   },
   "detail": {

@@ -32,29 +32,29 @@
     "months_ago": "{{count}} 个月前"
   },
   "templates": {
-    "daily_news": {
-      "title": "每日新闻摘要",
-      "summary": "搜索并汇总今天的新闻给团队"
+    "skill_evaluation": {
+      "title": "Skill 效果评估替换",
+      "summary": "基于任务结果评估并替换表现不佳的 skills"
     },
-    "pr_review": {
-      "title": "PR review 提醒",
-      "summary": "标记需要 review 的滞留 pull request"
+    "dream_mode": {
+      "title": "梦境模式",
+      "summary": "运行离线反思和巩固循环，促进智能体学习"
     },
-    "bug_triage": {
-      "title": "Bug 分诊",
-      "summary": "评估并安排新提交的 bug"
+    "task_inspection": {
+      "title": "任务巡检",
+      "summary": "复盘已完成任务，发现模式和改进机会"
     },
-    "weekly_progress": {
-      "title": "每周进度报告",
-      "summary": "汇总团队本周进展"
+    "deliverable_quality": {
+      "title": "交付物质量检测",
+      "summary": "评估智能体输出质量，识别改进方向"
     },
-    "dependency_audit": {
-      "title": "依赖审计",
-      "summary": "扫描安全漏洞和过时的依赖包"
+    "pattern_extraction": {
+      "title": "模式提取",
+      "summary": "从成功任务中提取可复用的模式"
     },
-    "documentation_check": {
-      "title": "文档检查",
-      "summary": "检查近期改动是否缺失文档"
+    "self_improvement": {
+      "title": "自进化循环",
+      "summary": "运行完整的自进化循环：分析、学习、更新"
     }
   },
   "detail": {
