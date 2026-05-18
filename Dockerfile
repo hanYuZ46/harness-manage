@@ -75,6 +75,12 @@ RUN chown -R nextjs:nodejs /tmp/public && \
     cp -a /tmp/public /app/apps/web/ && \
     rm -rf /tmp/public
 
+# Copy locales directory (translation JSON files for i18n)
+COPY --from=builder /app/packages/views/locales /tmp/locales
+RUN chown -R nextjs:nodejs /tmp/locales && \
+    cp -a /tmp/locales /app/packages/views/ && \
+    rm -rf /tmp/locales
+
 USER nextjs
 
 EXPOSE 3000
