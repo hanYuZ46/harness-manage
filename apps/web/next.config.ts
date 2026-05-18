@@ -33,15 +33,6 @@ const nextConfig: NextConfig = {
   ...(allowedDevOrigins && allowedDevOrigins.length > 0
     ? { allowedDevOrigins }
     : {}),
-  // Include locale JSON files in standalone output — they're imported at build time
-  // by @multica/views/locales but aren't automatically traced as dependencies
-  ...(process.env.STANDALONE === "true" ? {
-    experimental: {
-      outputFileTracingIncludes: {
-        "/**/*": ["./packages/views/locales/**/*"],
-      },
-    },
-  } : {}),
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75, 80, 85],
