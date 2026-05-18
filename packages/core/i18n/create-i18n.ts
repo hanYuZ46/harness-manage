@@ -11,6 +11,7 @@ export function createI18n(
   resources: Record<string, LocaleResources>,
 ): I18n {
   const instance = i18next.createInstance();
+  console.log('[createI18n] Before init - instance:', !!instance, 'has use:', typeof instance.use);
   instance.use(initReactI18next).init({
     lng: locale,
     fallbackLng: "en",
@@ -19,5 +20,6 @@ export function createI18n(
     initAsync: false,
     react: { useSuspense: false },
   });
+  console.log('[createI18n] After init - isInitialized:', instance.isInitialized, 'has reactor:', !!instance.reactor);
   return instance;
 }
