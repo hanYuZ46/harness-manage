@@ -16,6 +16,8 @@ export function I18nProvider({
   resources,
   children,
 }: I18nProviderProps) {
+  // Debug: log resources to verify they're being passed correctly
+  console.log('[I18nProvider] locale:', locale, 'resources keys:', Object.keys(resources), 'memories keys:', resources[locale]?.memories ? Object.keys(resources[locale].memories) : 'MISSING');
   // Lazy init via useState so the instance survives re-renders.
   // Locale + resources are determined at boot and never change at runtime —
   // language switching goes through window.location.reload().
