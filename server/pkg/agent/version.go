@@ -48,10 +48,16 @@ var devDescribeRe = regexp.MustCompile(`^v?\d+\.\d+\.\d+-\d+-g[0-9a-fA-F]+`)
 // Dev-built daemons (git-describe shape) always pass — the version string
 // itself is the shared signal, so the modal pre-check and this server gate
 // agree by construction without needing to compare separate env flags.
+// Special case: "dev" (local builds without git tags) also passes to allow
+// development without needing to set up git describe.
 func CheckMinCLIVersion(detected string) error {
 	d := strings.TrimSpace(detected)
 	if d == "" {
 		return ErrCLIVersionMissing
+	}
+	// Allow "dev" builds (local make build / go run without git tags)
+	if d == "dev" {
+		return nil
 	}
 	if devDescribeRe.MatchString(d) {
 		return nil
