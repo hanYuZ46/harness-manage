@@ -21,13 +21,13 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Organization",
-      name: "Multica",
-      url: "https://www.multica.ai",
+      name: "Harness Manager",
+      url: "https://www.harness-manager.ai",
       sameAs: ["https://github.com/multica-ai/multica"],
     },
     {
       "@type": "SoftwareApplication",
-      name: "Multica",
+      name: "Harness Manager",
       applicationCategory: "ProjectManagement",
       operatingSystem: "Web",
       description:

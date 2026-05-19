@@ -130,7 +130,7 @@ export function createZhDict(allowSignup: boolean): LandingDict {
       {
         title: "\u5b89\u88c5 CLI \u5e76\u8fde\u63a5\u4f60\u7684\u673a\u5668",
         description:
-          "运行 multica setup——它会引导你完成 OAuth 登录、启动守护进程、并扫描 11 款支持的 AI 编程工具（Claude Code、Codex、Cursor、Copilot、Gemini、Hermes、Kimi、Kiro CLI、OpenCode、OpenClaw、Pi）。本机已安装的工具会被自动注册成运行时。",
+          "运行 harness setup——它会引导你完成 OAuth 登录、启动守护进程、并扫描 11 款支持的 AI 编程工具（Claude Code、Codex、Cursor、Copilot、Gemini、Hermes、Kimi、Kiro CLI、OpenCode、OpenClaw、Pi）。本机已安装的工具会被自动注册成运行时。",
       },
       {
         title: "\u521b\u5efa\u4f60\u7684\u7b2c\u4e00\u4e2a 智能体",
@@ -387,7 +387,7 @@ export function createZhDict(allowSignup: boolean): LandingDict {
         title: "Daemon 磁盘占用 CLI、Timeline 打磨与任务用量聚合提速",
         changes: [],
         features: [
-          "新增 `multica daemon disk-usage` CLI，按 task / workspace 维度查看磁盘占用",
+          "新增 `harness daemon disk-usage` CLI，按 task / workspace 维度查看磁盘占用",
           "Skill Picker 弹窗新增搜索框，Agent 设置里挑技能更快",
           "Daemon GC 覆盖扩展到 chat、autopilot、quick-create 任务",
           "Issue 详情页面包屑直接显示 MUL-xxxx identifier",
@@ -471,8 +471,8 @@ export function createZhDict(allowSignup: boolean): LandingDict {
         title: "Repo Checkout `--ref`、Hermes 历史回放修复与多副本 Model Picker",
         changes: [],
         features: [
-          "`multica repo checkout --ref` 支持按分支、tag 或指定 commit 拉取仓库",
-          "`multica agent avatar` 命令支持直接通过 CLI 上传 Agent 头像",
+          "`harness repo checkout --ref` 支持按分支、tag 或指定 commit 拉取仓库",
+          "`harness agent avatar` 命令支持直接通过 CLI 上传 Agent 头像",
           "Inbox 中已完成任务新增 archive 按钮，移除冗余的 mark-as-done 悬浮按钮",
         ],
         improvements: [
@@ -484,7 +484,7 @@ export function createZhDict(allowSignup: boolean): LandingDict {
           "新创建的 Agent 立刻在各处可见 —— 创建时即 hydrate Agent 缓存",
           "Hermes 在新一轮对话开始时不再重放上一轮答案 —— 历史 chunk 受单轮门禁限制",
           "Codex runtime 模型选择器开放 GPT-5.5 系列",
-          "`multica login --token <PAT>` 正确接收 PAT 作为参数值",
+          "`harness login --token <PAT>` 正确接收 PAT 作为参数值",
           "CLI update 完成状态上报更可靠",
           "Session resume 按 runtime 正确守卫，避免跨 runtime 复用 session",
           "看板拖拽 Issue 时显示设置不再丢失",
@@ -591,9 +591,9 @@ export function createZhDict(allowSignup: boolean): LandingDict {
         title: "Agent 自定义环境变量、更清晰的失败信息与一系列稳定性修复",
         changes: [],
         features: [
-          "`multica agent create/update --custom-env KEY=VALUE` 支持为 Agent 注入自定义环境变量",
+          "`harness agent create/update --custom-env KEY=VALUE` 支持为 Agent 注入自定义环境变量",
           "Agent 失败信息会带上 Runtime CLI 的 stderr 末尾片段，排查 Runtime 报错更直接",
-          "CLI 更新下载超时支持配置，弱网下 `multica update` 不再被默认超时切断",
+          "CLI 更新下载超时支持配置，弱网下 `harness update` 不再被默认超时切断",
         ],
         improvements: [
           "Daemon 把取消的任务上报为 `cancelled` 而非 `timeout`，并在按 Issue 取消任务时同步对齐 Agent 状态",
@@ -670,7 +670,7 @@ export function createZhDict(allowSignup: boolean): LandingDict {
         changes: [],
         features: [
           "桌面应用跨平台打包——同一条发布流水线产出 macOS、Windows 和 Linux 安装包",
-          "新增 `multica update` 自更新命令——无需重装即可升级 CLI 和本地 Daemon",
+          "新增 `harness update` 自更新命令——无需重装即可升级 CLI 和本地 Daemon",
           "Issue 看板所有状态列都支持分页（不再只是 Done 列），大积压下依然流畅",
         ],
         fixes: [
@@ -687,7 +687,7 @@ export function createZhDict(allowSignup: boolean): LandingDict {
         title: "Agent 模型选择、Kimi Runtime 与自部署登录",
         changes: [],
         features: [
-          "Agent 新增 `model` 字段及按 Provider 聚合的模型下拉框——可在界面或通过 `multica agent create/update --model` 为每个 Agent 选择 LLM 模型，并从各 Runtime CLI 实时发现可用模型",
+          "Agent 新增 `model` 字段及按 Provider 聚合的模型下拉框——可在界面或通过 `harness agent create/update --model` 为每个 Agent 选择 LLM 模型，并从各 Runtime CLI 实时发现可用模型",
           "新增 Kimi CLI Agent Runtime（Moonshot AI 的 `kimi-cli`，基于 ACP），支持模型选择、自动授权工具权限以及流式工具调用渲染",
           "评论和回复编辑器新增放大按钮，便于撰写长文本",
         ],
@@ -835,7 +835,7 @@ export function createZhDict(allowSignup: boolean): LandingDict {
         title: "一键安装、自部署与稳定性",
         changes: [],
         features: [
-          "一键安装与配置——`curl | bash` 安装 CLI，`--with-server` 完整自部署，`multica setup` 配置连接环境",
+          "一键安装与配置——`curl | bash` 安装 CLI，`--with-server` 完整自部署，`harness setup` 配置连接环境",
           "自部署存储——无 S3 时本地文件存储回退，支持自定义 S3 端点（MinIO）",
           "项目列表页支持行内编辑属性（优先级、状态、负责人）",
         ],
@@ -981,7 +981,7 @@ export function createZhDict(allowSignup: boolean): LandingDict {
           "打开的 Issue 不再分页限制全量加载，已关闭的 Issue 滚动分页",
           "JWT 和 CloudFront Cookie 有效期从 72 小时延长至 30 天",
           "重新登录后记住上次选择的工作区",
-          "守护进程确保 Agent 任务环境中 multica CLI 在 PATH 上",
+          "守护进程确保 Agent 任务环境中 harness CLI 在 PATH 上",
           "新增 PR 模板和面向 Agent 的 CLI 安装指南",
         ],
       },

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getPageTitle } from "@/features/landing/utils/page-title";
-import { MulticaLanding } from "@/features/landing/components/multica-landing";
+import { LandingPage } from "@/features/landing/components/multica-landing";
 
 export const metadata: Metadata = {
   title: getPageTitle("Homepage"),
@@ -18,5 +18,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomepagePage() {
-  return <MulticaLanding />;
+  return <LandingPage />;
 }

@@ -236,7 +236,7 @@ export function createEnDict(allowSignup: boolean): LandingDict {
         links: [
           { label: "Documentation", href: "/docs" },
           { label: "API", href: githubUrl },
-          { label: "X (Twitter)", href: "https://x.com/MulticaAI" },
+          { label: "X (Twitter)", href: "https://x.com/HarnessMgr" },
         ],
       },
       company: {
@@ -387,7 +387,7 @@ export function createEnDict(allowSignup: boolean): LandingDict {
         title: "Daemon Disk-Usage CLI, Timeline Polish & Task Usage Rollup",
         changes: [],
         features: [
-          "New `multica daemon disk-usage` CLI surfaces per-task and per-workspace disk footprint",
+          "New `harness daemon disk-usage` CLI surfaces per-task and per-workspace disk footprint",
           "Skill picker in agent settings has a search box for fast lookup",
           "Daemon GC extends to chat, autopilot, and quick-create tasks",
           "Issue detail breadcrumb now shows the MUL-xxxx identifier for quick reference",
@@ -471,8 +471,8 @@ export function createEnDict(allowSignup: boolean): LandingDict {
         title: "Repo Checkout `--ref`, Hermes Replay Fix & Multi-Replica Model Picker",
         changes: [],
         features: [
-          "`multica repo checkout --ref` targets a branch, tag, or specific commit when pulling a repo into the workspace",
-          "`multica agent avatar` uploads an agent avatar straight from the CLI",
+          "`harness repo checkout --ref` targets a branch, tag, or specific commit when pulling a repo into the workspace",
+          "`harness agent avatar` uploads an agent avatar straight from the CLI",
           "Inbox shows an archive button on done tasks; the redundant mark-as-done hover button is gone",
         ],
         improvements: [
@@ -484,7 +484,7 @@ export function createEnDict(allowSignup: boolean): LandingDict {
           "Newly created agents show up everywhere immediately — the agent cache is hydrated on create",
           "Hermes no longer replays the previous answer when a new turn starts — historical chunks are gated behind a per-turn flag",
           "Codex runtime model picker exposes the GPT-5.5 family",
-          "`multica login --token <PAT>` accepts the PAT as a flag value instead of rejecting it",
+          "`harness login --token <PAT>` accepts the PAT as a flag value instead of rejecting it",
           "CLI update completion status is now reliable",
           "Session resume is guarded by runtime, preventing cross-runtime resume",
           "Kanban display settings survive when dragging issues across columns",
@@ -591,9 +591,9 @@ export function createEnDict(allowSignup: boolean): LandingDict {
         title: "Custom Agent Env, Better Failure Messages & Reliability Fixes",
         changes: [],
         features: [
-          "`multica agent create/update --custom-env KEY=VALUE` injects custom environment variables into agent runs",
+          "`harness agent create/update --custom-env KEY=VALUE` injects custom environment variables into agent runs",
           "Agent failure messages now include a tail of the runtime CLI's stderr — much easier to debug runtime errors",
-          "CLI update download timeout is now configurable, so slow links no longer abort `multica update`",
+          "CLI update download timeout is now configurable, so slow links no longer abort `harness update`",
         ],
         improvements: [
           "Daemon reports cancelled tasks as `cancelled` instead of `timeout`, and reconciles agent status when an issue's tasks are cancelled",
@@ -670,7 +670,7 @@ export function createEnDict(allowSignup: boolean): LandingDict {
         changes: [],
         features: [
           "Desktop app cross-platform packaging — macOS, Windows, and Linux artifacts from a single release pipeline",
-          "`multica update` self-update command — upgrade the CLI and local daemon without reinstalling",
+          "`harness update` self-update command — upgrade the CLI and local daemon without reinstalling",
           "Issue board paginates every status column, not only Done — large backlogs stay responsive",
         ],
         fixes: [
@@ -687,7 +687,7 @@ export function createEnDict(allowSignup: boolean): LandingDict {
         title: "Per-Agent Models, Kimi Runtime & Self-Host Auth",
         changes: [],
         features: [
-          "Per-agent `model` field with a provider-aware dropdown — pick the LLM model for each agent from the UI or via `multica agent create/update --model`, with live discovery from each runtime's CLI",
+          "Per-agent `model` field with a provider-aware dropdown — pick the LLM model for each agent from the UI or via `harness agent create/update --model`, with live discovery from each runtime's CLI",
           "Kimi CLI as a new agent runtime (Moonshot AI's `kimi-cli` over ACP), with model selection, auto-approved tool permissions, and streaming tool-call rendering",
           "Expand toggle on inline comment and reply editors for composing long text",
         ],
@@ -835,7 +835,7 @@ export function createEnDict(allowSignup: boolean): LandingDict {
         title: "One-Click Setup, Self-Hosting & Stability",
         changes: [],
         features: [
-          "One-click install & setup — `curl | bash` installs CLI, `--with-server` bootstraps full self-hosting, `multica setup` configures your environment",
+          "One-click install & setup — `curl | bash` installs CLI, `--with-server` bootstraps full self-hosting, `harness setup` configures your environment",
           "Self-hosted storage — local file fallback when S3 is unavailable, plus custom S3 endpoint support (MinIO)",
           "Inline property editing (priority, status, lead) on project list page",
         ],
@@ -981,7 +981,7 @@ export function createEnDict(allowSignup: boolean): LandingDict {
           "Load all open issues without pagination limit; closed issues paginate on scroll",
           "JWT and CloudFront cookie expiration extended from 72 hours to 30 days",
           "Remember last selected workspace after re-login",
-          "Daemon ensures multica CLI is on PATH in agent task environment",
+          "Daemon ensures harness CLI is on PATH in agent task environment",
           "PR template and CLI install guide for agent-driven setup",
         ],
       },
