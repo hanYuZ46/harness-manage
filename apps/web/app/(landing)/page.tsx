@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function LandingPage() {
+export default function Page() {
   return (
     <>
       <RedirectIfAuthenticated />
