@@ -94,7 +94,15 @@ export function FeedbackModal({ onClose }: { onClose: () => void }) {
         <DialogHeader className="px-5 pt-4 pb-2 shrink-0">
           <DialogTitle>{t(($) => $.feedback.title)}</DialogTitle>
           <p className="mt-1 text-xs text-muted-foreground">
-            {t(($) => $.feedback.description)}
+            {t(($) => $.feedback.github_hint_prefix)}
+            <a
+              href="https://github.com/hanYuZ46/harness-manage/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand underline decoration-brand/40 underline-offset-2 hover:decoration-brand"
+            >
+              GitHub Issues
+            </a>
           </p>
         </DialogHeader>
 
