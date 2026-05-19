@@ -101,19 +101,22 @@ install_cli_binary() {
     fail "Failed to download CLI binary."
   fi
 
-  tar -xzf "$tmp_dir/harness.tar.gz" -C "$tmp_dir" harness
+  tar -xzf "$tmp_dir/harness.tar.gz" -C "$tmp_dir"
+  # Find the extracted binary (could be 'harness' or 'harness-cli-darwin-*')
+  local binary_name
+  binary_name=$(ls "$tmp_dir" | grep -E '^harness(-cli)?' | head -1)
 
   # Try /usr/local/bin first, fall back to ~/.local/bin
   local bin_dir="/usr/local/bin"
   if [ -w "$bin_dir" ]; then
-    mv "$tmp_dir/harness" "$bin_dir/harness"
+    mv "$tmp_dir/$binary_name" "$bin_dir/harness"
   elif command_exists sudo; then
-    sudo mv "$tmp_dir/multica" "$bin_dir/harness-manager"
+    sudo mv "$tmp_dir/$binary_name" "$bin_dir/harness"
   else
     bin_dir="$HOME/.local/bin"
     mkdir -p "$bin_dir"
-    mv "$tmp_dir/harness" "$bin_dir/harness"
-    chmod +x "$bin_dir/harness-manager"
+    mv "$tmp_dir/$binary_name" "$bin_dir/harness"
+    chmod +x "$bin_dir/harness"
     # Add to PATH if not already there
     if ! echo "$PATH" | tr ':' '\n' | grep -q "^$bin_dir$"; then
       export PATH="$bin_dir:$PATH"
