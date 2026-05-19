@@ -115,7 +115,7 @@ func init() {
 }
 
 // daemonDirForProfile returns the state directory for the given profile.
-// Empty profile → ~/.multica/, named profile → ~/.multica/profiles/<name>/.
+// Empty profile → ~/.harness/, named profile → ~/.harness/profiles/<name>/.
 func daemonDirForProfile(profile string) string {
 	dir, err := cli.ProfileDir(profile)
 	if err != nil {

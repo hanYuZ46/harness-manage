@@ -31,7 +31,7 @@ func tryResolveAppURL(cmd *cobra.Command) string {
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Authenticate and set up workspaces",
-	Long:  "Log in to Multica, then automatically discover and watch all your workspaces.",
+	Long:  "Log in to harness-manager, then automatically discover and watch all your workspaces.",
 	// Up to one positional is accepted so `--token mul_...` (space form) can
 	// recover the token in runAuthLogin even though pflag won't bind it.
 	Args: cobra.MaximumNArgs(1),
@@ -40,7 +40,7 @@ var loginCmd = &cobra.Command{
 
 // tokenPromptSentinel is the value pflag assigns to `--token` when the flag
 // is supplied without an explicit value. runAuthLoginToken treats it as
-// "prompt me interactively", preserving the legacy `multica login --token`
+// "prompt me interactively", preserving the legacy `harness login --token`
 // no-value form alongside the documented `--token mul_...` value form.
 const tokenPromptSentinel = "\x00prompt"
 
@@ -61,11 +61,11 @@ func runLogin(cmd *cobra.Command, args []string) error {
 	// Auto-discover and watch all workspaces.
 	if err := autoWatchWorkspaces(cmd); err != nil {
 		fmt.Fprintf(os.Stderr, "\nCould not auto-configure workspaces: %v\n", err)
-		fmt.Fprintf(os.Stderr, "Run 'multica workspace list' and 'multica workspace watch <id>' to set up manually.\n")
+		fmt.Fprintf(os.Stderr, "Run 'harness workspace list' and 'harness workspace watch <id>' to set up manually.\n")
 		return nil
 	}
 
-	fmt.Fprintf(os.Stderr, "\n→ Run 'multica daemon start' to start your local agent runtime.\n")
+	fmt.Fprintf(os.Stderr, "\n→ Run 'harness daemon start' to start your local agent runtime.\n")
 	return nil
 }
 
@@ -134,7 +134,7 @@ func waitForWorkspaceCreation(cmd *cobra.Command, client *cli.APIClient) ([]stru
 		// No app URL available (e.g. token login without prior setup).
 		// Can't open the browser — tell the user to create a workspace manually.
 		fmt.Fprintln(os.Stderr, "\nNo workspaces found.")
-		fmt.Fprintln(os.Stderr, "Create a workspace in the web dashboard, then run 'multica login' again.")
+		fmt.Fprintln(os.Stderr, "Create a workspace in the web dashboard, then run 'harness login' again.")
 		return nil, nil
 	}
 

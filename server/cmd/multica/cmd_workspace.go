@@ -68,7 +68,7 @@ func runWorkspaceList(cmd *cobra.Command, _ []string) error {
 	serverURL := resolveServerURL(cmd)
 	token := resolveToken(cmd)
 	if token == "" {
-		return fmt.Errorf("not authenticated: run 'multica login' first")
+		return fmt.Errorf("not authenticated: run 'harness login' first")
 	}
 
 	client := cli.NewAPIClient(serverURL, "", token)

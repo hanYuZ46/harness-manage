@@ -2,20 +2,20 @@
 # harness-manager installer — installs the CLI and optionally provisions a self-host server.
 #
 # Install / upgrade CLI only:
-#   curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash
 #
 # Install CLI + provision self-host server:
-#   curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --with-server
+#   curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash -s -- --with-server
 #
-# After installation, run `harness-manager setup` to configure your environment.
+# After installation, run `harness setup` to configure your environment.
 #
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-REPO_URL="https://github.com/multica-ai/multica.git"
-REPO_WEB_URL="https://github.com/multica-ai/multica"  # without .git, for GitHub web APIs
+REPO_URL="https://github.com/hanYuZ46/harness-manage.git"
+REPO_WEB_URL="https://github.com/hanYuZ46/harness-manage"  # without .git, for GitHub web APIs
 INSTALL_DIR="${HARNESS_MANAGER_INSTALL_DIR:-$HOME/.harness-manager/server}"
 BREW_PACKAGE="multica-ai/tap/multica"
 
@@ -47,7 +47,7 @@ detect_os() {
     Linux)  OS="linux" ;;
     MINGW*|MSYS*|CYGWIN*)
             fail "This script does not support Windows. Use the PowerShell installer instead:
-  irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex" ;;
+  irm https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.ps1 | iex" ;;
     *)      fail "Unsupported operating system: $(uname -s). harness-manager supports macOS, Linux, and Windows." ;;
   esac
 
@@ -64,24 +64,24 @@ detect_os() {
 # CLI Installation
 # ---------------------------------------------------------------------------
 install_cli_brew() {
-  info "Installing harness-manager CLI via Homebrew..."
-  if ! brew tap multica-ai/tap 2>/dev/null; then
+  info "Installing harness CLI via Homebrew..."
+  if ! brew tap hanYuZ46/tap 2>/dev/null; then
     fail "Failed to add Homebrew tap. Check your network connection."
   fi
   # brew install exits non-zero if already installed on older Homebrew versions
   if ! brew install "$BREW_PACKAGE" 2>/dev/null; then
     if brew list "$BREW_PACKAGE" >/dev/null 2>&1; then
-      ok "harness-manager CLI already installed via Homebrew"
+      ok "harness CLI already installed via Homebrew"
     else
-      fail "Failed to install harness-manager via Homebrew."
+      fail "Failed to install harness via Homebrew."
     fi
   else
-    ok "harness-manager CLI installed via Homebrew"
+    ok "harness CLI installed via Homebrew"
   fi
 }
 
 install_cli_binary() {
-  info "Installing harness-manager CLI from GitHub Releases..."
+  info "Installing harness CLI from GitHub Releases..."
 
   # Get latest release tag
   local latest
@@ -91,28 +91,28 @@ install_cli_binary() {
   fi
 
   local version="${latest#v}"
-  local url="https://github.com/multica-ai/multica/releases/download/${latest}/multica-cli-${version}-${OS}-${ARCH}.tar.gz"
+  local url="https://github.com/hanYuZ46/harness-manage/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
   local tmp_dir
   tmp_dir=$(mktemp -d)
 
   info "Downloading $url ..."
-  if ! curl -fsSL "$url" -o "$tmp_dir/multica.tar.gz"; then
+  if ! curl -fsSL "$url" -o "$tmp_dir/harness.tar.gz"; then
     rm -rf "$tmp_dir"
     fail "Failed to download CLI binary."
   fi
 
-  tar -xzf "$tmp_dir/multica.tar.gz" -C "$tmp_dir" multica
+  tar -xzf "$tmp_dir/harness.tar.gz" -C "$tmp_dir" harness
 
   # Try /usr/local/bin first, fall back to ~/.local/bin
   local bin_dir="/usr/local/bin"
   if [ -w "$bin_dir" ]; then
-    mv "$tmp_dir/multica" "$bin_dir/harness-manager"
+    mv "$tmp_dir/harness" "$bin_dir/harness"
   elif command_exists sudo; then
     sudo mv "$tmp_dir/multica" "$bin_dir/harness-manager"
   else
     bin_dir="$HOME/.local/bin"
     mkdir -p "$bin_dir"
-    mv "$tmp_dir/multica" "$bin_dir/harness-manager"
+    mv "$tmp_dir/harness" "$bin_dir/harness"
     chmod +x "$bin_dir/harness-manager"
     # Add to PATH if not already there
     if ! echo "$PATH" | tr ':' '\n' | grep -q "^$bin_dir$"; then
@@ -122,7 +122,7 @@ install_cli_binary() {
   fi
 
   rm -rf "$tmp_dir"
-  ok "harness-manager CLI installed to $bin_dir/harness-manager"
+  ok "harness CLI installed to $bin_dir/harness"
 }
 
 add_to_path() {
@@ -130,7 +130,7 @@ add_to_path() {
   local line="export PATH=\"$dir:\$PATH\""
   for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
     if [ -f "$rc" ] && ! grep -qF "$dir" "$rc"; then
-      printf '\n# Added by harness-manager installer\n%s\n' "$line" >> "$rc"
+      printf '\n# Added by harness installer\n%s\n' "$line" >> "$rc"
     fi
   done
 }
@@ -190,21 +190,21 @@ pull_official_selfhost_images() {
 }
 
 upgrade_cli_brew() {
-  info "Upgrading harness-manager CLI via Homebrew..."
+  info "Upgrading harness CLI via Homebrew..."
   brew update 2>/dev/null || true
   if brew upgrade "$BREW_PACKAGE" 2>/dev/null; then
-    ok "harness-manager CLI upgraded via Homebrew"
+    ok "harness CLI upgraded via Homebrew"
   else
     # brew upgrade exits non-zero if already up to date
-    ok "harness-manager CLI is already the latest version"
+    ok "harness CLI is already the latest version"
   fi
 }
 
 install_cli() {
-  if command_exists harness-manager; then
+  if command_exists harness; then
     local current_ver
-    # `harness-manager version` outputs "harness-manager v0.1.13 (commit: abc1234)" — extract just the version
-    current_ver=$(harness-manager version 2>/dev/null | awk '{print $2}' || echo "unknown")
+    # `harness version` outputs "harness v0.1.13 (commit: abc1234)" — extract just the version
+    current_ver=$(harness version 2>/dev/null | awk '{print $2}' || echo "unknown")
 
     local latest_ver
     latest_ver=$(get_latest_version)
@@ -214,11 +214,11 @@ install_cli() {
     local latest_cmp="${latest_ver#v}"
 
     if [ -z "$latest_ver" ] || [ "$current_cmp" = "$latest_cmp" ]; then
-      ok "harness-manager CLI is up to date ($current_ver)"
+      ok "harness CLI is up to date ($current_ver)"
       return 0
     fi
 
-    info "harness-manager CLI $current_ver installed, latest is $latest_ver — upgrading..."
+    info "harness CLI $current_ver installed, latest is $latest_ver — upgrading..."
     if command_exists brew && brew list "$BREW_PACKAGE" >/dev/null 2>&1; then
       upgrade_cli_brew
     else
@@ -226,8 +226,8 @@ install_cli() {
     fi
 
     local new_ver
-    new_ver=$(harness-manager version 2>/dev/null | awk '{print $2}' || echo "unknown")
-    ok "harness-manager CLI upgraded ($current_ver → $new_ver)"
+    new_ver=$(harness version 2>/dev/null | awk '{print $2}' || echo "unknown")
+    ok "harness CLI upgraded ($current_ver → $new_ver)"
     return 0
   fi
 
@@ -238,8 +238,8 @@ install_cli() {
   fi
 
   # Verify
-  if ! command_exists harness-manager; then
-    fail "CLI installed but 'harness-manager' not found on PATH. You may need to restart your shell."
+  if ! command_exists harness; then
+    fail "CLI installed but 'harness' not found on PATH. You may need to restart your shell."
   fi
 }
 
@@ -249,7 +249,7 @@ install_cli() {
 check_docker() {
   if ! command_exists docker; then
     printf "\n"
-    fail "Docker is not installed. harness-manager self-hosting requires Docker and Docker Compose.
+    fail "Docker is not installed. harness self-hosting requires Docker and Docker Compose.
 
 Install Docker:
   macOS:  https://docs.docker.com/desktop/install/mac-install/
@@ -269,7 +269,7 @@ After installing Docker, re-run this script with --with-server."
 # Server setup (self-host / --with-server)
 # ---------------------------------------------------------------------------
 setup_server() {
-  info "Setting up harness-manager server..."
+  info "Setting up harness server..."
   local server_ref
   server_ref=$(get_selfhost_ref)
   info "Using self-host assets from ${server_ref}..."
@@ -278,7 +278,7 @@ setup_server() {
     info "Updating existing installation at $INSTALL_DIR..."
     cd "$INSTALL_DIR"
   else
-    info "Cloning harness-manager repository..."
+    info "Cloning harness repository..."
     if ! command_exists git; then
       fail "Git is not installed. Please install git and re-run."
     fi
@@ -313,9 +313,9 @@ setup_server() {
   fi
 
   # Start Docker Compose
-  info "Pulling official harness-manager images..."
+  info "Pulling official harness images..."
   pull_official_selfhost_images
-  info "Starting harness-manager services (this may take a few minutes on first run)..."
+  info "Starting harness services (this may take a few minutes on first run)..."
   docker compose -f docker-compose.selfhost.yml up -d
 
   # Wait for health check
@@ -330,7 +330,7 @@ setup_server() {
   done
 
   if [ "$ready" = true ]; then
-    ok "harness-manager server is running"
+    ok "harness server is running"
   else
     warn "Server is still starting. You can check logs with:"
     echo "  cd $INSTALL_DIR && docker compose -f docker-compose.selfhost.yml logs"
@@ -344,7 +344,7 @@ setup_server() {
 # ---------------------------------------------------------------------------
 run_default() {
   printf "\n"
-  printf "${BOLD}  harness-manager — Installer${RESET}\n"
+  printf "${BOLD}  harness — Installer${RESET}\n"
   printf "\n"
 
   detect_os
@@ -352,16 +352,16 @@ run_default() {
 
   printf "\n"
   printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
-  printf "${BOLD}${GREEN}  ✓ harness-manager CLI is ready!${RESET}\n"
+  printf "${BOLD}${GREEN}  ✓ harness CLI is ready!${RESET}\n"
   printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
   printf "\n"
   printf "  ${BOLD}Next: configure your environment${RESET}\n"
   printf "\n"
-  printf "     ${CYAN}harness-manager setup${RESET}                # Connect to harness-manager Cloud (multica.ai)\n"
-  printf "     ${CYAN}harness-manager setup self-host${RESET}       # Connect to a self-hosted server\n"
+  printf "     ${CYAN}harness setup${RESET}                # Connect to harness Cloud (harness.ai)\n"
+  printf "     ${CYAN}harness setup self-host${RESET}       # Connect to a self-hosted server\n"
   printf "\n"
   printf "  ${BOLD}Self-hosting? Install the server first:\n"
-  printf "     curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --with-server\n"
+  printf "     curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash -s -- --with-server\n"
   printf "\n"
 }
 
@@ -370,7 +370,7 @@ run_default() {
 # ---------------------------------------------------------------------------
 run_with_server() {
   printf "\n"
-  printf "${BOLD}  harness-manager — Self-Host Installer${RESET}\n"
+  printf "${BOLD}  harness — Self-Host Installer${RESET}\n"
   printf "  Provisioning server infrastructure + installing CLI\n"
   printf "\n"
 
@@ -381,7 +381,7 @@ run_with_server() {
 
   printf "\n"
   printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
-  printf "${BOLD}${GREEN}  ✓ harness-manager server is running and CLI is ready!${RESET}\n"
+  printf "${BOLD}${GREEN}  ✓ harness server is running and CLI is ready!${RESET}\n"
   printf "${BOLD}${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
   printf "\n"
   printf "  ${BOLD}Frontend:${RESET}  http://localhost:3000\n"
@@ -390,13 +390,13 @@ run_with_server() {
   printf "\n"
   printf "  ${BOLD}Next: configure your CLI to connect${RESET}\n"
   printf "\n"
-  printf "     ${CYAN}harness-manager setup self-host${RESET}   # Configure + authenticate + start daemon\n"
+  printf "     ${CYAN}harness setup self-host${RESET}   # Configure + authenticate + start daemon\n"
   printf "\n"
   printf "  ${BOLD}Login:${RESET} configure ${CYAN}RESEND_API_KEY${RESET} in .env for email codes,\n"
   printf "  or read the generated code from backend logs when Resend is unset.\n"
   printf "\n"
   printf "  ${BOLD}To stop all services:${RESET}\n"
-  printf "     curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --stop\n"
+  printf "     curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash -s -- --stop\n"
   printf "\n"
 }
 
@@ -405,7 +405,7 @@ run_with_server() {
 # ---------------------------------------------------------------------------
 run_stop() {
   printf "\n"
-  info "Stopping harness-manager services..."
+  info "Stopping harness services..."
 
   if [ -d "$INSTALL_DIR" ]; then
     cd "$INSTALL_DIR"
@@ -416,11 +416,11 @@ run_stop() {
       warn "No docker-compose.selfhost.yml found at $INSTALL_DIR"
     fi
   else
-    warn "No harness-manager installation found at $INSTALL_DIR"
+    warn "No harness installation found at $INSTALL_DIR"
   fi
 
-  if command_exists harness-manager; then
-    harness-manager daemon stop 2>/dev/null && ok "Daemon stopped" || true
+  if command_exists harness; then
+    harness daemon stop 2>/dev/null && ok "Daemon stopped" || true
   fi
 
   printf "\n"
@@ -440,11 +440,11 @@ main() {
       --help|-h)
         echo "Usage: install.sh [--with-server | --stop]"
         echo ""
-        echo "  (default)       Install / upgrade the harness-manager CLI"
+        echo "  (default)       Install / upgrade the harness CLI"
         echo "  --with-server   Install CLI + provision a self-host server (Docker)"
         echo "  --stop          Stop a self-hosted installation"
         echo ""
-        echo "After installation, run 'harness-manager setup' to configure your environment."
+        echo "After installation, run 'harness setup' to configure your environment."
         exit 0
         ;;
       *) warn "Unknown option: $1" ;;
