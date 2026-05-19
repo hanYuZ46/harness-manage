@@ -309,15 +309,6 @@ function AboutAgentsSide() {
       <p className="text-[13px] leading-[1.55] text-muted-foreground">
         {t(($) => $.step_agent.add_more_hint)}
       </p>
-
-      <a
-        href="https://multica.ai/docs/agents-create"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="self-start text-[13px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
-      >
-        {t(($) => $.step_agent.docs_link)}
-      </a>
     </div>
   );
 }

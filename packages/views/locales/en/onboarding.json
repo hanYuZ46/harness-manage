@@ -66,8 +66,7 @@
     "unlock_starter_title": "A starter project, tailored",
     "unlock_starter_body": "A Getting Started checklist shaped by your answers.",
     "unlock_agents_title": "A head start with agents",
-    "unlock_agents_body": "Connect a runtime and we'll pick a template for your role — plus write its first task.",
-    "learn_more": "Learn how agents work →"
+    "unlock_agents_body": "Connect a runtime and we'll pick a template for your role — plus write its first task."
   },
   "option_card": {
     "other_label": "Other",
@@ -82,8 +81,7 @@
     "swap_title": "Swap anytime",
     "swap_body": "Each agent's runtime is just a setting. Change it whenever you want.",
     "add_more_title": "Add more later",
-    "add_more_body": "You can connect a second runtime on another machine for a team, or a dedicated one per agent.",
-    "learn_more": "Learn about runtimes →"
+    "add_more_body": "You can connect a second runtime on another machine for a team, or a dedicated one per agent."
   },
   "cli_install": {
     "copy_aria": "Copy",

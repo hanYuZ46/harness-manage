@@ -331,15 +331,6 @@ function WhyWeAsk() {
           />
         </div>
       </section>
-
-      <a
-        href="https://multica.ai/docs/agents"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="self-start text-[13px] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
-      >
-        {t(($) => $.questionnaire.learn_more)}
-      </a>
     </div>
   );
 }

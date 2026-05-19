@@ -2,7 +2,6 @@
   "page": {
     "title": "Runtimes",
     "tagline": "Machines and cloud workers running CLI sessions for your agents.",
-    "learn_more": "Learn more →",
     "connect_remote": "Connect remote machine",
     "search_placeholder": "Search runtimes…",
     "scope_mine": "Mine",

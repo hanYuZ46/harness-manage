@@ -23,7 +23,7 @@ const jsonLd = {
       "@type": "Organization",
       name: "Harness Manager",
       url: "https://www.harness-manager.ai",
-      sameAs: ["https://github.com/multica-ai/multica"],
+      sameAs: ["https://github.com/hanYuZ46/harness-manage"],
     },
     {
       "@type": "SoftwareApplication",

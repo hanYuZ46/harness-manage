@@ -2,7 +2,6 @@
   "page": {
     "title": "Agents",
     "tagline": "AI teammates that pick up issues, comment, and update status.",
-    "learn_more": "Learn more →",
     "new_agent": "New agent",
     "search_placeholder": "Search agents…",
     "show_archived": "Show archived ({{count}}) →",

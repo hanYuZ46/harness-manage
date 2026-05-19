@@ -116,15 +116,15 @@ export function ConnectRemoteDialog({ onClose }: { onClose: () => void }) {
 // Step 1: Installation instructions
 // ---------------------------------------------------------------------------
 
-const INSTALL_CMD = "curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash";
+const INSTALL_CMD = "curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash";
 
-const CONFIGURE_CMD = `multica config set server_url https://api.multica.ai
-multica config set app_url https://multica.ai`;
+const CONFIGURE_CMD = `harness config set server_url https://harness-manager.dev.ennew.com
+harness config set app_url https://harness-manager-web.dev.ennew.com`;
 
-const LOGIN_CMD = "multica login --token <YOUR_TOKEN>";
+const LOGIN_CMD = "harness login --token <YOUR_TOKEN>";
 
-const START_CMD = `multica daemon start --device-name "my-ec2-instance"
-multica daemon status`;
+const START_CMD = `harness daemon start --device-name "my-ec2-instance"
+harness daemon status`;
 
 function CodeBlock({
   code,
@@ -262,13 +262,13 @@ function InstructionsStep({
               <li>
                 {t(($) => $.connect.trouble_check_status)}
                 <code className="rounded bg-muted px-1 py-0.5 font-mono text-[10px]">
-                  {"multica daemon status"}
+                  {"harness daemon status"}
                 </code>
               </li>
               <li>
                 {t(($) => $.connect.trouble_view_logs)}
                 <code className="rounded bg-muted px-1 py-0.5 font-mono text-[10px]">
-                  {"multica daemon logs -f"}
+                  {"harness daemon logs -f"}
                 </code>
               </li>
               <li>
@@ -280,7 +280,7 @@ function InstructionsStep({
               <li>
                 {t(($) => $.connect.trouble_remote_note_prefix)}
                 <code className="rounded bg-muted px-1 py-0.5 font-mono text-[10px]">
-                  {"multica daemon"}
+                  {"harness daemon"}
                 </code>
                 {t(($) => $.connect.trouble_remote_note_suffix)}
               </li>
@@ -322,7 +322,7 @@ function WaitingStep({ onBack }: { onBack: () => void }) {
         <p className="text-sm text-muted-foreground">
           {t(($) => $.connect.waiting_hint_prefix)}
           <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-            {"multica daemon status"}
+            {"harness daemon status"}
           </code>
           {t(($) => $.connect.waiting_hint_suffix)}
         </p>

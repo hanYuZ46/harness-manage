@@ -111,17 +111,6 @@ export function UpdateNotification() {
               Restart to apply the update
             </p>
             <div className="mt-2 flex items-center gap-1.5">
-              {/* Secondary "See changes" — gives the user a reason to
-                  restart by surfacing what they're about to get. Opens
-                  in the default browser via the shared openExternal
-                  bridge so the URL hits the same allow-list as every
-                  other outbound link. */}
-              <button
-                onClick={() => window.desktopAPI.openExternal("https://multica.ai/changelog")}
-                className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent transition-colors"
-              >
-                See changes
-              </button>
               <button
                 onClick={handleInstall}
                 className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
