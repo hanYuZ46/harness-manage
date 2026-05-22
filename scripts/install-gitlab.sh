@@ -125,19 +125,29 @@ install_cli() {
   local version="${latest#v}"
   local url=""
   local source_name=""
+  local use_insecure=false
 
-  # Try GitHub Releases via mirror first (for China network)
-  url="${GITHUB_MIRROR}/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-  source_name="GitHub Releases (mirror)"
+  # Use mirror if GITHUB_MIRROR_URL is set (for China network)
+  if [ -n "${GITHUB_MIRROR_URL:-}" ]; then
+    url="${GITHUB_MIRROR_URL}/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+    source_name="GitHub Releases (mirror)"
+    use_insecure=true
 
-  # Verify the URL is accessible before proceeding (use -k for mirror SSL issues)
-  if ! curl -sfIk --max-time 15 "$url" >/dev/null 2>&1; then
-    # Fallback to direct GitHub Releases
+    # Verify mirror is accessible
+    if ! curl -sfIk --max-time 15 "$url" >/dev/null 2>&1; then
+      info "Mirror not accessible, trying direct GitHub..."
+      url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+      source_name="GitHub Releases (direct)"
+      use_insecure=false
+    fi
+  else
+    # No mirror set, try direct GitHub first
     url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
     source_name="GitHub Releases (direct)"
 
+    # Verify direct GitHub is accessible
     if ! curl -sfI --max-time 15 "$url" >/dev/null 2>&1; then
-      info "GitHub release not accessible, trying GitLab..."
+      info "GitHub not accessible, trying GitLab..."
       url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
       source_name="GitLab Releases"
     fi
@@ -155,10 +165,9 @@ install_cli() {
 
   info "Downloading from ${source_name}..."
   # Use -k for mirror URLs to handle SSL certificate issues
-  if [[ "$url" == *"${GITHUB_MIRROR}"* ]]; then
+  local curl_cmd="curl -fsSL --max-time 60"
+  if [ "$use_insecure" = true ]; then
     curl_cmd="curl -fsSLk --max-time 60"
-  else
-    curl_cmd="curl -fsSL --max-time 60"
   fi
 
   if ! $curl_cmd "$url" -o "$tmp_dir/harness.tar.gz" 2>/dev/null; then
