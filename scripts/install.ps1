@@ -1,10 +1,10 @@
-# Multica installer for Windows — one command to get started.
+# Harness Manager installer for Windows — one command to get started.
 #
-# Install CLI (default): connects to multica.ai
-#   irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex
+# Install CLI (default): connects to harness-manager.ai
+#   irm https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.ps1 | iex
 #
-# Self-host: starts a local Multica server + installs CLI + configures
-#   $env:MULTICA_MODE="local"; irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex
+# Self-host: starts a local Harness Manager server + installs CLI + configures
+#   $env:HARNESS_MODE="local"; irm https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.ps1 | iex
 #
 
 $ErrorActionPreference = "Stop"
@@ -12,10 +12,10 @@ $ErrorActionPreference = "Stop"
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-$RepoUrl       = "https://github.com/multica-ai/multica.git"
-$RepoWebUrl    = "https://github.com/multica-ai/multica"
-$DefaultInstallDir = Join-Path $env:USERPROFILE ".multica\server"
-$InstallDir    = if ($env:MULTICA_INSTALL_DIR) { $env:MULTICA_INSTALL_DIR } else { $DefaultInstallDir }
+$RepoUrl       = "https://github.com/hanYuZ46/harness-manage.git"
+$RepoWebUrl    = "https://github.com/hanYuZ46/harness-manage"
+$DefaultInstallDir = Join-Path $env:USERPROFILE ".harness-manager\server"
+$InstallDir    = if ($env:HARNESS_INSTALL_DIR) { $env:HARNESS_INSTALL_DIR } else { $DefaultInstallDir }
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -32,7 +32,7 @@ function Test-CommandExists {
 
 function Get-LatestVersion {
     try {
-        $release = Invoke-RestMethod -Uri "https://api.github.com/repos/multica-ai/multica/releases/latest" -ErrorAction Stop
+        $release = Invoke-RestMethod -Uri "https://api.github.com/repos/hanYuZ46/harness-manage/releases/latest" -ErrorAction Stop
         return $release.tag_name
     } catch {
         return $null
@@ -40,8 +40,8 @@ function Get-LatestVersion {
 }
 
 function Get-SelfHostRef {
-    if ($env:MULTICA_SELFHOST_REF) {
-        return $env:MULTICA_SELFHOST_REF
+    if ($env:HARNESS_SELFHOST_REF) {
+        return $env:HARNESS_SELFHOST_REF
     }
 
     $latest = Get-LatestVersion

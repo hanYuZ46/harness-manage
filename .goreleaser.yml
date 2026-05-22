@@ -1,12 +1,12 @@
 version: 2
 
-project_name: multica
+project_name: harness
 
 builds:
-  - id: multica
-    main: ./cmd/multica
+  - id: harness
+    main: ./cmd/harness
     dir: server
-    binary: multica
+    binary: harness
     ldflags:
       - -s -w
       - -X main.version={{.Version}}
@@ -23,8 +23,8 @@ builds:
       - arm64
 
 archives:
-  # Legacy archive name kept so already-released CLIs (whose `multica update`
-  # looks for `multica_{os}_{arch}.{ext}`) can keep self-updating. Remove
+  # Legacy archive name kept so already-released CLIs (whose `harness update`
+  # looks for `harness_{os}_{arch}.{ext}`) can keep self-updating. Remove
   # once those versions are no longer in use.
   - id: legacy
     formats:
@@ -57,19 +57,19 @@ changelog:
       - "^chore:"
 
 brews:
-  - name: multica
+  - name: harness-manager
     ids:
       - versioned
     repository:
-      owner: multica-ai
+      owner: hanYuZ46
       name: homebrew-tap
       branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     directory: Formula
-    homepage: "https://github.com/multica-ai/multica"
-    description: "Multica CLI — local agent runtime and management tool for the Multica platform"
+    homepage: "https://github.com/hanYuZ46/harness-manage"
+    description: "Harness Manager CLI — local agent runtime and management tool for the Harness Manager platform"
     license: "Apache-2.0"
     install: |
-      bin.install "multica"
+      bin.install "harness"
     test: |
-      system "#{bin}/multica", "version"
+      system "#{bin}/harness", "version"

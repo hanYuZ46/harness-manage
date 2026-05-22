@@ -17,7 +17,7 @@ set -euo pipefail
 REPO_URL="https://github.com/hanYuZ46/harness-manage.git"
 REPO_WEB_URL="https://github.com/hanYuZ46/harness-manage"  # without .git, for GitHub web APIs
 INSTALL_DIR="${HARNESS_MANAGER_INSTALL_DIR:-$HOME/.harness-manager/server}"
-BREW_PACKAGE="multica-ai/tap/multica"
+BREW_PACKAGE="hanYuZ46/tap/harness-manager"
 
 # Colors (disabled when not a terminal)
 if [ -t 1 ] || [ -t 2 ]; then
