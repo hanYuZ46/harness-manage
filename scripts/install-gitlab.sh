@@ -128,8 +128,8 @@ install_cli() {
   url="${GITHUB_MIRROR}/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
   source_name="GitHub Releases (mirror)"
 
-  # Verify the URL is accessible before proceeding
-  if ! curl -sfI --max-time 15 "$url" >/dev/null 2>&1; then
+  # Verify the URL is accessible before proceeding (use -k for mirror SSL issues)
+  if ! curl -sfIk --max-time 15 "$url" >/dev/null 2>&1; then
     # Fallback to direct GitHub Releases
     url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
     source_name="GitHub Releases (direct)"
@@ -152,7 +152,14 @@ install_cli() {
   tmp_dir=$(mktemp -d)
 
   info "Downloading from ${source_name}..."
-  if ! curl -fsSL --max-time 60 "$url" -o "$tmp_dir/harness.tar.gz" 2>/dev/null; then
+  # Use -k for mirror URLs to handle SSL certificate issues
+  if [[ "$url" == *"${GITHUB_MIRROR}"* ]]; then
+    curl_cmd="curl -fsSLk --max-time 60"
+  else
+    curl_cmd="curl -fsSL --max-time 60"
+  fi
+
+  if ! $curl_cmd "$url" -o "$tmp_dir/harness.tar.gz" 2>/dev/null; then
     rm -rf "$tmp_dir"
     # Fallback: build from source (try GitHub as it's public)
     info "Downloading source, building locally..."
