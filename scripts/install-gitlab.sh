@@ -75,17 +75,10 @@ detect_os() {
 # Get latest version from GitLab or GitHub
 # ---------------------------------------------------------------------------
 get_latest_version() {
-  # Try GitHub API via mirror first (for China network)
-  local latest
-  latest=$(curl -sf --max-time 10 "${GITHUB_RAW_MIRROR}/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | sed 's/"name": *"//;s/"//')
+  local latest=""
 
-  if [ -n "$latest" ]; then
-    echo "$latest"
-    return
-  fi
-
-  # Fallback to direct GitHub API
-  latest=$(curl -sf --max-time 10 "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | sed 's/"name": *"//;s/"//')
+  # Try direct GitHub API first (most reliable)
+  latest=$(curl -sfIk --max-time 10 "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | sed 's/"name": *"//;s/"//')
 
   if [ -n "$latest" ]; then
     echo "$latest"
@@ -93,11 +86,20 @@ get_latest_version() {
   fi
 
   # Fallback to GitHub releases API
-  latest=$(curl -sf --max-time 10 "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases/latest" 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | sed 's/"tag_name": *"//;s/"//')
+  latest=$(curl -sfIk --max-time 10 "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases/latest" 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | sed 's/"tag_name": *"//;s/"//')
 
   if [ -n "$latest" ]; then
     echo "$latest"
     return
+  fi
+
+  # Try mirror API (for China network)
+  if [ -n "${GITHUB_MIRROR_URL:-}" ]; then
+    latest=$(curl -sfIk --max-time 10 "${GITHUB_MIRROR_URL//\/github.com}/api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | sed 's/"name": *"//;s/"//')
+    if [ -n "$latest" ]; then
+      echo "$latest"
+      return
+    fi
   fi
 
   # Last resort: Try GitLab API (may timeout for unreachable instances)
