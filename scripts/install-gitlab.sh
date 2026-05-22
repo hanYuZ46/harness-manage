@@ -66,16 +66,8 @@ detect_os() {
 # Get latest version from GitLab or GitHub
 # ---------------------------------------------------------------------------
 get_latest_version() {
-  # Try GitLab API first (with timeout for slow/unreachable instances)
+  # Try GitHub API first (public, no login required, faster)
   local latest
-  latest=$(curl -sf --max-time 5 "${GITLAB_API}/repository/tags" 2>/dev/null | grep -o '"name":"[^"]*"' | head -1 | sed 's/"name":"//;s/"//')
-
-  if [ -n "$latest" ]; then
-    echo "$latest"
-    return
-  fi
-
-  # Fallback to GitHub API (different JSON format)
   latest=$(curl -sf --max-time 10 "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | sed 's/"name": *"//;s/"//')
 
   if [ -n "$latest" ]; then
@@ -83,8 +75,16 @@ get_latest_version() {
     return
   fi
 
-  # Last fallback: try GitHub releases API
+  # Fallback to GitHub releases API
   latest=$(curl -sf --max-time 10 "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases/latest" 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | sed 's/"tag_name": *"//;s/"//')
+
+  if [ -n "$latest" ]; then
+    echo "$latest"
+    return
+  fi
+
+  # Last resort: Try GitLab API (may timeout for unreachable instances)
+  latest=$(curl -sf --max-time 5 "${GITLAB_API}/repository/tags" 2>/dev/null | grep -o '"name":"[^"]*"' | head -1 | sed 's/"name":"//;s/"//')
   echo "$latest"
 }
 
@@ -96,9 +96,11 @@ install_cli() {
 
   local latest
   latest=$(get_latest_version)
+
+  # Hard fallback if version detection fails
   if [ -z "$latest" ]; then
-    warn "Could not determine latest release, using main branch"
-    latest="main"
+    info "Using latest stable release v0.2.7"
+    latest="v0.2.7"
   fi
 
   local version="${latest#v}"
@@ -109,15 +111,15 @@ install_cli() {
   url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
   source_name="GitHub Releases"
 
-  # Fallback to GitLab Releases (for internal users with token)
-  if ! curl -sfI "$url" >/dev/null 2>&1; then
-    info "GitHub release not found, trying GitLab..."
+  # Verify the URL is accessible before proceeding
+  if ! curl -sfI --max-time 10 "$url" >/dev/null 2>&1; then
+    info "GitHub release not accessible, trying GitLab..."
     url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
     source_name="GitLab Releases"
   fi
 
   # Fallback to GitLab CI artifacts
-  if ! curl -sfI "$url" >/dev/null 2>&1; then
+  if ! curl -sfI --max-time 10 "$url" >/dev/null 2>&1; then
     info "GitLab release not found, trying CI artifacts..."
     url="${GITLAB_URL}/${GITLAB_PROJECT}/-/jobs/artifacts/${latest}/raw/dist/harness-cli-${version}-${OS}-${ARCH}.tar.gz?job=build"
     source_name="GitLab CI"
@@ -127,7 +129,7 @@ install_cli() {
   tmp_dir=$(mktemp -d)
 
   info "Downloading from ${source_name}..."
-  if ! curl -fsSL "$url" -o "$tmp_dir/harness.tar.gz" 2>/dev/null; then
+  if ! curl -fsSL --max-time 60 "$url" -o "$tmp_dir/harness.tar.gz" 2>/dev/null; then
     rm -rf "$tmp_dir"
     # Fallback: build from source (try GitHub as it's public)
     info "Downloading source, building locally..."
