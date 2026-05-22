@@ -7,39 +7,45 @@
 #
 set -euo pipefail
 
-# Set mirror by default (for users without ability to set env vars)
-export GITHUB_MIRROR_URL="${GITHUB_MIRROR_URL:-https://ghproxy.cc/https://github.com}"
-INSTALLER_URL="${GITHUB_RAW_MIRROR_URL:-https://ghproxy.cc/https://raw.githubusercontent.com}/hanYuZ46/harness-manage/main/scripts/install-gitlab.sh"
+# Mirror URLs (try multiple for reliability)
+MIRRORS=(
+  "https://ghproxy.cc/https://raw.githubusercontent.com"
+  "https://ghproxy.net/https://raw.githubusercontent.com"
+  "https://mirror.ghproxy.com/https://raw.githubusercontent.com"
+)
 
-# Download and execute the main installer from mirror
+GITHUB_USER="hanYuZ46"
+GITHUB_REPO="harness-manage"
+INSTALLER_PATH="${GITHUB_USER}/${GITHUB_REPO}/main/scripts/install-gitlab.sh"
+
+# Try each mirror
 echo "Downloading installer from mirror..."
-if curl -fsSLk --max-time 30 "$INSTALLER_URL" -o /tmp/harness-install-tmp.sh; then
+INSTALLER_URL=""
+for mirror in "${MIRRORS[@]}"; do
+  if curl -fsSLk --max-time 15 "${mirror}/${INSTALLER_PATH}" -o /tmp/harness-install-tmp.sh 2>/dev/null; then
+    INSTALLER_URL="${mirror}/${INSTALLER_PATH}"
+    echo "Using mirror: $mirror"
+    break
+  fi
+done
+
+if [ -n "$INSTALLER_URL" ] && [ -f /tmp/harness-install-tmp.sh ]; then
   echo "Running installer..."
   bash /tmp/harness-install-tmp.sh
   rm -f /tmp/harness-install-tmp.sh
 else
-  echo "Failed to download installer, trying fallback..."
-  # Fallback: build from source
-  echo "Building from source..."
-  tmp_dir=$(mktemp -d)
-  if git clone --depth 1 https://github.com/hanYuZ46/harness-manage.git "$tmp_dir/src" 2>/dev/null; then
-    cd "$tmp_dir/src/server"
-    echo "Building..."
-    go build -ldflags="-s -w" -o /tmp/harness ./cmd/harness
-    mkdir -p "$HOME/.local/bin"
-    mv /tmp/harness "$HOME/.local/bin/harness"
-    chmod +x "$HOME/.local/bin/harness"
-    rm -rf "$tmp_dir"
-    echo ""
-    echo "✓ harness CLI installed to $HOME/.local/bin/harness"
-    echo ""
-    echo "Next steps:"
-    echo "  harness config set server_url  <your-server-url>"
-    echo "  harness login                  # Authenticate"
-    echo "  harness daemon start           # Start daemon"
+  echo "Mirror download failed, trying direct GitHub..."
+  # Fallback to direct GitHub
+  if curl -fsSL --max-time 30 "https://raw.githubusercontent.com/${INSTALLER_PATH}" -o /tmp/harness-install-tmp.sh 2>/dev/null; then
+    echo "Running installer from GitHub..."
+    bash /tmp/harness-install-tmp.sh
+    rm -f /tmp/harness-install-tmp.sh
   else
-    echo "Error: Cannot clone repository. Check your network connection."
-    rm -rf "$tmp_dir"
+    echo "Error: Cannot download installer. Check your network connection."
+    echo "Manual installation:"
+    echo "  1. Visit: https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases"
+    echo "  2. Download latest harness-cli for your platform"
+    echo "  3. Extract to ~/.local/bin/harness"
     exit 1
   fi
 fi
