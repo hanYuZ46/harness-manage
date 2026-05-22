@@ -125,20 +125,20 @@ install_cli() {
   local version="${latest#v}"
   local url=""
   local source_name=""
-  local use_insecure=false
+  local curl_cmd="curl -fsSL --max-time 60"
 
   # Use mirror if GITHUB_MIRROR_URL is set (for China network)
   if [ -n "${GITHUB_MIRROR_URL:-}" ]; then
     url="${GITHUB_MIRROR_URL}/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
     source_name="GitHub Releases (mirror)"
-    use_insecure=true
+    curl_cmd="curl -fsSLk --max-time 60"
 
     # Verify mirror is accessible
     if ! curl -sfIk --max-time 15 "$url" >/dev/null 2>&1; then
       info "Mirror not accessible, trying direct GitHub..."
       url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
       source_name="GitHub Releases (direct)"
-      use_insecure=false
+      curl_cmd="curl -fsSL --max-time 60"
     fi
   else
     # No mirror set, try direct GitHub first
@@ -153,23 +153,20 @@ install_cli() {
     fi
   fi
 
-  # Fallback to GitLab CI artifacts
-  if ! curl -sfI --max-time 10 "$url" >/dev/null 2>&1; then
-    info "GitLab release not found, trying CI artifacts..."
-    url="${GITLAB_URL}/${GITLAB_PROJECT}/-/jobs/artifacts/${latest}/raw/dist/harness-cli-${version}-${OS}-${ARCH}.tar.gz?job=build"
-    source_name="GitLab CI"
+  # Skip GitLab fallback if using mirror (mirror should work)
+  if [ -z "${GITHUB_MIRROR_URL:-}" ]; then
+    # Fallback to GitLab CI artifacts
+    if ! curl -sfI --max-time 10 "$url" >/dev/null 2>&1; then
+      info "GitLab release not found, trying CI artifacts..."
+      url="${GITLAB_URL}/${GITLAB_PROJECT}/-/jobs/artifacts/${latest}/raw/dist/harness-cli-${version}-${OS}-${ARCH}.tar.gz?job=build"
+      source_name="GitLab CI"
+    fi
   fi
 
   local tmp_dir
   tmp_dir=$(mktemp -d)
 
   info "Downloading from ${source_name}..."
-  # Use -k for mirror URLs to handle SSL certificate issues
-  local curl_cmd="curl -fsSL --max-time 60"
-  if [ "$use_insecure" = true ]; then
-    curl_cmd="curl -fsSLk --max-time 60"
-  fi
-
   if ! $curl_cmd "$url" -o "$tmp_dir/harness.tar.gz" 2>/dev/null; then
     rm -rf "$tmp_dir"
     # Fallback: build from source (try GitHub as it's public)
