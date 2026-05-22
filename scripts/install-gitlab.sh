@@ -75,8 +75,16 @@ get_latest_version() {
     return
   fi
 
-  # Fallback to GitHub API
-  latest=$(curl -sf "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name":"[^"]*"' | head -1 | sed 's/"name":"//;s/"//')
+  # Fallback to GitHub API (different JSON format)
+  latest=$(curl -sf "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | sed 's/"name": *"//;s/"//')
+
+  if [ -n "$latest" ]; then
+    echo "$latest"
+    return
+  fi
+
+  # Last fallback: try GitHub releases API
+  latest=$(curl -sf "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases/latest" 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | sed 's/"tag_name": *"//;s/"//')
   echo "$latest"
 }
 
