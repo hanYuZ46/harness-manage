@@ -66,9 +66,9 @@ detect_os() {
 # Get latest version from GitLab or GitHub
 # ---------------------------------------------------------------------------
 get_latest_version() {
-  # Try GitLab API first
+  # Try GitLab API first (with timeout for slow/unreachable instances)
   local latest
-  latest=$(curl -sf "${GITLAB_API}/repository/tags" 2>/dev/null | grep -o '"name":"[^"]*"' | head -1 | sed 's/"name":"//;s/"//')
+  latest=$(curl -sf --max-time 5 "${GITLAB_API}/repository/tags" 2>/dev/null | grep -o '"name":"[^"]*"' | head -1 | sed 's/"name":"//;s/"//')
 
   if [ -n "$latest" ]; then
     echo "$latest"
@@ -76,7 +76,7 @@ get_latest_version() {
   fi
 
   # Fallback to GitHub API (different JSON format)
-  latest=$(curl -sf "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | sed 's/"name": *"//;s/"//')
+  latest=$(curl -sf --max-time 10 "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | sed 's/"name": *"//;s/"//')
 
   if [ -n "$latest" ]; then
     echo "$latest"
@@ -84,7 +84,7 @@ get_latest_version() {
   fi
 
   # Last fallback: try GitHub releases API
-  latest=$(curl -sf "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases/latest" 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | sed 's/"tag_name": *"//;s/"//')
+  latest=$(curl -sf --max-time 10 "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/releases/latest" 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | sed 's/"tag_name": *"//;s/"//')
   echo "$latest"
 }
 
