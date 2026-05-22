@@ -58,12 +58,28 @@
 ## 4. 安装脚本使用
 
 ### 从 GitLab 安装（推荐内网用户）：
-```bash
-# 方式 1: 直接安装
-curl -fsSL https://gitlab.enncloud.cn/moss/harness/harness-cli/-/raw/main/scripts/install-gitlab.sh | bash
 
-# 方式 2: 指定版本
-curl -fsSL https://gitlab.enncloud.cn/moss/harness/harness-cli/-/raw/v0.2.7/scripts/install-gitlab.sh | bash
+**重要提示**: GitLab 实例 (`gitlab.enncloud.cn`) 需要登录后才能访问 raw 文件。
+
+#### 方案 A: 使用 GitLab Token (推荐)
+```bash
+# 在浏览器登录 GitLab 后，使用带 token 的 URL
+curl -fsSL "https://gitlab.enncloud.cn/moss/harness/harness-cli/-/raw/main/scripts/install-gitlab.sh?private_token=YOUR_TOKEN" | bash
+```
+
+#### 方案 B: 下载脚本后执行
+```bash
+# 1. 在浏览器打开 (需要登录):
+#    https://gitlab.enncloud.cn/moss/harness/harness-cli/-/raw/main/scripts/install-gitlab.sh
+# 2. 保存为 install-gitlab.sh
+# 3. 执行：
+bash install-gitlab.sh
+```
+
+#### 方案 C: 使用 GitHub (外网用户，无需登录)
+```bash
+# GitHub 不需要登录即可下载
+curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash
 ```
 
 ### 配置服务器：

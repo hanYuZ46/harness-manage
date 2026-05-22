@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
-# harness-manager installer — GitLab version
-# Install from GitLab releases instead of GitHub
+# harness-manager installer
+# Supports both GitLab (internal) and GitHub (public) installation
 #
-# Install CLI only:
-#   curl -fsSL https://gitlab.enncloud.cn/moss/harness/harness-cli/-/raw/main/scripts/install-gitlab.sh | bash
+# Install from GitHub (no login required):
+#   curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash
+#
+# Install from GitLab (requires token for company instance):
+#   curl -fsSL "https://gitlab.enncloud.cn/moss/harness/harness-cli/-/raw/main/scripts/install-gitlab.sh?private_token=YOUR_TOKEN" | bash
 #
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
+# Try GitLab first, fallback to GitHub
 GITLAB_URL="https://gitlab.enncloud.cn"
 GITLAB_PROJECT="moss/harness/harness-cli"
 GITLAB_API="${GITLAB_URL}/api/v4/projects/${GITLAB_PROJECT//\//%2F}"
+
+GITHUB_USER="hanYuZ46"
+GITHUB_REPO="harness-manage"
+GITHUB_RAW="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main"
+
 INSTALL_DIR="${HARNESS_MANAGER_INSTALL_DIR:-$HOME/.harness-manager/server}"
 
 # Colors
@@ -54,12 +63,20 @@ detect_os() {
 }
 
 # ---------------------------------------------------------------------------
-# Get latest version from GitLab
+# Get latest version from GitLab or GitHub
 # ---------------------------------------------------------------------------
 get_latest_version() {
-  # Get latest tag from GitLab API
+  # Try GitLab API first
   local latest
   latest=$(curl -sf "${GITLAB_API}/repository/tags" 2>/dev/null | grep -o '"name":"[^"]*"' | head -1 | sed 's/"name":"//;s/"//')
+
+  if [ -n "$latest" ]; then
+    echo "$latest"
+    return
+  fi
+
+  # Fallback to GitHub API
+  latest=$(curl -sf "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name":"[^"]*"' | head -1 | sed 's/"name":"//;s/"//')
   echo "$latest"
 }
 
@@ -67,7 +84,7 @@ get_latest_version() {
 # Install CLI
 # ---------------------------------------------------------------------------
 install_cli() {
-  info "Installing harness CLI from GitLab Releases..."
+  info "Installing harness CLI..."
 
   local latest
   latest=$(get_latest_version)
@@ -77,23 +94,36 @@ install_cli() {
   fi
 
   local version="${latest#v}"
-  local url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+  local url=""
+  local source_name=""
 
-  # Fallback to CI artifacts if release not found
+  # Try GitLab Releases first (for internal users with token)
+  url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+  source_name="GitLab Releases"
+
+  # Fallback to CI artifacts
   if ! curl -sfI "$url" >/dev/null 2>&1; then
-    info "Trying CI artifacts..."
+    info "GitLab release not found, trying CI artifacts..."
     url="${GITLAB_URL}/${GITLAB_PROJECT}/-/jobs/artifacts/${latest}/raw/dist/harness-cli-${version}-${OS}-${ARCH}.tar.gz?job=build"
+    source_name="GitLab CI"
+  fi
+
+  # Fallback to GitHub Releases (for external users, no login required)
+  if ! curl -sfI "$url" >/dev/null 2>&1; then
+    info "GitLab not accessible, falling back to GitHub..."
+    url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+    source_name="GitHub Releases"
   fi
 
   local tmp_dir
   tmp_dir=$(mktemp -d)
 
-  info "Downloading from GitLab..."
+  info "Downloading from ${source_name}..."
   if ! curl -fsSL "$url" -o "$tmp_dir/harness.tar.gz" 2>/dev/null; then
     rm -rf "$tmp_dir"
-    # Fallback: build from source
+    # Fallback: build from source (try GitHub as it's public)
     info "Downloading source, building locally..."
-    git clone --depth 1 "${GITLAB_URL}/${GITLAB_PROJECT}.git" "$tmp_dir/src" 2>/dev/null
+    git clone --depth 1 "https://github.com/${GITHUB_USER}/${GITHUB_REPO}.git" "$tmp_dir/src" 2>/dev/null
     cd "$tmp_dir/src"
     GOOS=$OS GOARCH=$ARCH go build -ldflags="-s -w" -o "$tmp_dir/harness" ./server/cmd/harness
   else
@@ -129,7 +159,7 @@ install_cli() {
 # ---------------------------------------------------------------------------
 main() {
   printf "\n"
-  printf "${BOLD}  harness-manager — GitLab Installer${RESET}\n"
+  printf "${BOLD}  harness-manager — Installer${RESET}\n"
   printf "\n"
 
   detect_os
