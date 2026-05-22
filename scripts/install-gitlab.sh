@@ -97,22 +97,22 @@ install_cli() {
   local url=""
   local source_name=""
 
-  # Try GitLab Releases first (for internal users with token)
-  url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-  source_name="GitLab Releases"
+  # Try GitHub Releases first (public, no login required)
+  url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+  source_name="GitHub Releases"
 
-  # Fallback to CI artifacts
+  # Fallback to GitLab Releases (for internal users with token)
+  if ! curl -sfI "$url" >/dev/null 2>&1; then
+    info "GitHub release not found, trying GitLab..."
+    url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+    source_name="GitLab Releases"
+  fi
+
+  # Fallback to GitLab CI artifacts
   if ! curl -sfI "$url" >/dev/null 2>&1; then
     info "GitLab release not found, trying CI artifacts..."
     url="${GITLAB_URL}/${GITLAB_PROJECT}/-/jobs/artifacts/${latest}/raw/dist/harness-cli-${version}-${OS}-${ARCH}.tar.gz?job=build"
     source_name="GitLab CI"
-  fi
-
-  # Fallback to GitHub Releases (for external users, no login required)
-  if ! curl -sfI "$url" >/dev/null 2>&1; then
-    info "GitLab not accessible, falling back to GitHub..."
-    url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-    source_name="GitHub Releases"
   fi
 
   local tmp_dir
