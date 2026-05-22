@@ -154,6 +154,7 @@ install_cli() {
   fi
 
   # Skip GitLab fallback if using mirror (mirror should work)
+  # Only check GitLab if not using mirror
   if [ -z "${GITHUB_MIRROR_URL:-}" ]; then
     # Fallback to GitLab CI artifacts
     if ! curl -sfI --max-time 10 "$url" >/dev/null 2>&1; then
@@ -162,6 +163,7 @@ install_cli() {
       source_name="GitLab CI"
     fi
   fi
+  # When using mirror, skip GitLab checks and proceed directly to download
 
   local tmp_dir
   tmp_dir=$(mktemp -d)
