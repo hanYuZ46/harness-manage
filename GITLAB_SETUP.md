@@ -57,11 +57,24 @@
 
 ## 4. 安装脚本使用
 
-### 从 GitLab 安装（推荐内网用户）：
+### 从 GitHub 安装（推荐，无需登录）：
+
+#### 方案 A: 使用镜像源（中国大陆用户推荐）
+```bash
+# 使用 ghproxy 镜像源，解决 GitHub 网络问题
+curl -fsSLk "https://ghproxy.cc/https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install-gitlab.sh" | GITHUB_MIRROR_URL="https://ghproxy.cc/https://github.com" bash
+```
+
+#### 方案 B: 直接下载（需要能访问 GitHub）
+```bash
+curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash
+```
+
+### 从 GitLab 安装（内网用户，需要 Token）：
 
 **重要提示**: GitLab 实例 (`gitlab.enncloud.cn`) 需要登录后才能访问 raw 文件。
 
-#### 方案 A: 使用 GitLab Token (推荐)
+#### 方案 A: 使用 GitLab Token
 ```bash
 # 在浏览器登录 GitLab 后，使用带 token 的 URL
 curl -fsSL "https://gitlab.enncloud.cn/moss/harness/harness-cli/-/raw/main/scripts/install-gitlab.sh?private_token=YOUR_TOKEN" | bash
@@ -74,12 +87,6 @@ curl -fsSL "https://gitlab.enncloud.cn/moss/harness/harness-cli/-/raw/main/scrip
 # 2. 保存为 install-gitlab.sh
 # 3. 执行：
 bash install-gitlab.sh
-```
-
-#### 方案 C: 使用 GitHub (外网用户，无需登录)
-```bash
-# GitHub 不需要登录即可下载
-curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash
 ```
 
 ### 配置服务器：
