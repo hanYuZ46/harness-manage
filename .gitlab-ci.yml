@@ -1,0 +1,60 @@
+# GitLab CI/CD for harness-manager
+# Auto-build and release on tags
+
+stages:
+  - build
+  - release
+
+variables:
+  GO_VERSION: "1.26"
+  CGO_ENABLED: "0"
+
+# Build binaries for all platforms
+build:
+  stage: build
+  image: golang:${GO_VERSION}
+  script:
+    - mkdir -p dist
+    - echo "Building for darwin_amd64..."
+    - GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w -X main.version=${CI_COMMIT_TAG:-dev}" -o dist/harness-darwin-amd64 ./server/cmd/harness
+    - echo "Building for darwin_arm64..."
+    - GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w -X main.version=${CI_COMMIT_TAG:-dev}" -o dist/harness-darwin-arm64 ./server/cmd/harness
+    - echo "Building for linux_amd64..."
+    - GOOS=linux GOARCH=amd64 go build -ldflags="-s -w -X main.version=${CI_COMMIT_TAG:-dev}" -o dist/harness-linux-amd64 ./server/cmd/harness
+    - echo "Building for linux_arm64..."
+    - GOOS=linux GOARCH=arm64 go build -ldflags="-s -w -X main.version=${CI_COMMIT_TAG:-dev}" -o dist/harness-linux-arm64 ./server/cmd/harness
+    - echo "Creating checksums..."
+    - cd dist && sha256sum * > checksums.txt
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  only:
+    - tags
+    - main
+
+# Create GitLab release on tags
+release:
+  stage: release
+  image: alpine:latest
+  script:
+    - apk add --no-cache curl bash
+    - echo "Creating GitLab release for ${CI_COMMIT_TAG}..."
+    - |
+      curl --request POST --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+        --form "name=${CI_COMMIT_TAG}" \
+        --form "tag_name=${CI_COMMIT_TAG}" \
+        --form "description=Release ${CI_COMMIT_TAG}" \
+        "https://gitlab.enncloud.cn/api/v4/projects/${CI_PROJECT_ID}/releases" || echo "Release may already exist"
+    - echo "Uploading assets..."
+    - |
+      for file in dist/harness-*; do
+        filename=$(basename $file)
+        curl --request POST --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+          --form "file=@${file}" \
+          "https://gitlab.enncloud.cn/api/v4/projects/${CI_PROJECT_ID}/uploads"
+      done
+  only:
+    - tags
+  dependencies:
+    - build
