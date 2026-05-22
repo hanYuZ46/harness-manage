@@ -1,26 +1,35 @@
 #!/usr/bin/env bash
 # harness-manager installer
-# Supports both GitLab (internal) and GitHub (public) installation
+# Supports GitLab (internal), GitHub (public), and mirror (for China network)
 #
 # Install from GitHub (no login required):
-#   curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install-gitlab.sh | bash
 #
 # Install from GitLab (requires token for company instance):
 #   curl -fsSL "https://gitlab.enncloud.cn/moss/harness/harness-cli/-/raw/main/scripts/install-gitlab.sh?private_token=YOUR_TOKEN" | bash
+#
+# Install from mirror (China network friendly):
+#   curl -fsSL "https://ghproxy.cc/https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install-gitlab.sh" | bash
 #
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-# Try GitLab first, fallback to GitHub
 GITLAB_URL="https://gitlab.enncloud.cn"
 GITLAB_PROJECT="moss/harness/harness-cli"
 GITLAB_API="${GITLAB_URL}/api/v4/projects/${GITLAB_PROJECT//\//%2F}"
 
 GITHUB_USER="hanYuZ46"
 GITHUB_REPO="harness-manage"
-GITHUB_RAW="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main"
+
+# GitHub mirror for China network (falls back to direct if mirror fails)
+GITHUB_MIRROR="${GITHUB_MIRROR_URL:-https://ghproxy.cc/https://github.com}"
+GITHUB_RAW_MIRROR="${GITHUB_RAW_MIRROR_URL:-https://ghproxy.cc/https://raw.githubusercontent.com}"
+
+# Direct GitHub URLs (used if mirror fails or not set)
+GITHUB_DIRECT="https://github.com/${GITHUB_USER}/${GITHUB_REPO}"
+GITHUB_RAW_DIRECT="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main"
 
 INSTALL_DIR="${HARNESS_MANAGER_INSTALL_DIR:-$HOME/.harness-manager/server}"
 
@@ -66,8 +75,16 @@ detect_os() {
 # Get latest version from GitLab or GitHub
 # ---------------------------------------------------------------------------
 get_latest_version() {
-  # Try GitHub API first (public, no login required, faster)
+  # Try GitHub API via mirror first (for China network)
   local latest
+  latest=$(curl -sf --max-time 10 "${GITHUB_RAW_MIRROR}/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | sed 's/"name": *"//;s/"//')
+
+  if [ -n "$latest" ]; then
+    echo "$latest"
+    return
+  fi
+
+  # Fallback to direct GitHub API
   latest=$(curl -sf --max-time 10 "https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/tags" 2>/dev/null | grep -o '"name": *"[^"]*"' | head -1 | sed 's/"name": *"//;s/"//')
 
   if [ -n "$latest" ]; then
@@ -107,15 +124,21 @@ install_cli() {
   local url=""
   local source_name=""
 
-  # Try GitHub Releases first (public, no login required)
-  url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-  source_name="GitHub Releases"
+  # Try GitHub Releases via mirror first (for China network)
+  url="${GITHUB_MIRROR}/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+  source_name="GitHub Releases (mirror)"
 
   # Verify the URL is accessible before proceeding
-  if ! curl -sfI --max-time 10 "$url" >/dev/null 2>&1; then
-    info "GitHub release not accessible, trying GitLab..."
-    url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-    source_name="GitLab Releases"
+  if ! curl -sfI --max-time 15 "$url" >/dev/null 2>&1; then
+    # Fallback to direct GitHub Releases
+    url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+    source_name="GitHub Releases (direct)"
+
+    if ! curl -sfI --max-time 15 "$url" >/dev/null 2>&1; then
+      info "GitHub release not accessible, trying GitLab..."
+      url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+      source_name="GitLab Releases"
+    fi
   fi
 
   # Fallback to GitLab CI artifacts
