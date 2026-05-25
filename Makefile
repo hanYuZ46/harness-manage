@@ -94,8 +94,8 @@ selfhost: ## Create .env if needed, then pull and start the official self-hosted
 		echo "        or read the generated code from backend logs when Resend is unset."; \
 		echo ""; \
 		echo "Next — install the CLI and connect your machine:"; \
-		echo "  brew install multica-ai/tap/multica"; \
-		echo "  multica setup self-host"; \
+		echo "  brew install hanYuZ46/tap/harness-manager"; \
+		echo "  harness setup self-host"; \
 	else \
 		echo ""; \
 		echo "Services are still starting. Check logs:"; \
@@ -136,8 +136,8 @@ selfhost-build: ## Build backend/web from the current checkout and start the sel
 		echo "Local tags: multica-backend:dev and multica-web:dev."; \
 		echo ""; \
 		echo "Next — install the CLI and connect your machine:"; \
-		echo "  brew install multica-ai/tap/multica"; \
-		echo "  multica setup self-host"; \
+		echo "  brew install hanYuZ46/tap/harness-manager"; \
+		echo "  harness setup self-host"; \
 	else \
 		echo ""; \
 		echo "Services are still starting. Check logs:"; \

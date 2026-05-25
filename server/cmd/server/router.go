@@ -35,7 +35,10 @@ var defaultOrigins = []string{
 }
 
 func allowedOrigins() []string {
-	raw := strings.TrimSpace(os.Getenv("CORS_ALLOWED_ORIGINS"))
+	raw := strings.TrimSpace(os.Getenv("ALLOWED_ORIGINS"))
+	if raw == "" {
+		raw = strings.TrimSpace(os.Getenv("CORS_ALLOWED_ORIGINS"))
+	}
 	if raw == "" {
 		raw = strings.TrimSpace(os.Getenv("FRONTEND_ORIGIN"))
 	}
@@ -307,6 +310,14 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 					r.Delete("/github/installations/{installationId}", h.DeleteGitHubInstallation)
 				})
 			})
+		})
+
+		// Memory endpoints (workspace member access)
+		r.Route("/api/workspaces/{workspaceId}/memories", func(r chi.Router) {
+			r.Use(middleware.RequireWorkspaceMemberFromURL(queries, "workspaceId"))
+			r.Get("/", h.GetMemories)
+			r.Get("/graph", h.GetMemoryGraph)
+			r.Get("/{memoryId}", h.GetMemoryDetail)
 		})
 
 		// User-scoped invitation routes (no workspace context required)

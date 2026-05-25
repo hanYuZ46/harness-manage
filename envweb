@@ -1,51 +1,17 @@
-# ========================================
-# Multica Web Frontend Environment Variables
-# ========================================
-
-# ---------------- Server URLs (后端 API 地址) -----------------
-# 后端 API 地址（HTTPS）
-# 注意：此地址在构建时通过 --build-arg 传入才能生效
-# 构建命令示例：
-#   docker build --build-arg REMOTE_API_URL=https://harness-manager.dev.ennew.com ...
+ENV=DEV
+NODE_ENV=development
+APP_ENV=development
 REMOTE_API_URL=https://harness-manager.dev.ennew.com
-
-# WebSocket 连接地址（WebSocket Secure）
-# 注意：此地址在构建时通过 --build-arg 传入才能生效
-# 构建命令示例：
-#   docker build --build-arg NEXT_PUBLIC_WS_URL=wss://harness-manager.dev.ennew.com/ws ...
 NEXT_PUBLIC_WS_URL=wss://harness-manager.dev.ennew.com/ws
-
-# ---------------- Application Info -----------------
-# 应用版本号
 NEXT_PUBLIC_APP_VERSION=1.0.0
-
-# ---------------- Environment -----------------
-# 运行环境
-NODE_ENV=production
-APP_ENV=production
-
-# ---------------- Server Config -----------------
-# 服务端口（默认 3000，Dockerfile 中已设置）
 PORT=3000
 HOSTNAME=0.0.0.0
-
-# ---------------- Build Config -----------------
-# 启用独立输出模式（用于生产部署）
 STANDALONE=true
-
-# ---------------- Optional: Docs URL -----------------
-# 文档服务地址（如果部署了独立文档服务）
-# DOCS_URL=http://localhost:4000
-
-# ---------------- Build Instructions -----------------
-# 构建前端镜像命令：
-#
-# docker build \
-#   --build-arg REMOTE_API_URL=https://harness-manager.dev.ennew.com \
-#   --build-arg NEXT_PUBLIC_WS_URL=wss://harness-manager.dev.ennew.com/ws \
-#   --build-arg NEXT_PUBLIC_APP_VERSION=1.0.0 \
-#   -t swr.cn-lflt-1.enncloud.cn/multica/web:latest \
-#   .
-#
-# 推送镜像：
-# docker push swr.cn-lflt-1.enncloud.cn/multica/web:latest
+TENANT_ID=1369923265280311297
+APP_ID=harness-manager-web
+MIDDLEWARE_ENV=XAXZ-QYZNT-DEV
+APM_COLLECTOR_KAFKA_BOOTSERVERS=apm-kafka.dev.ennew.com:9092
+APM.COLLECTOR.BACKEND_REST_SERVICE=apm-server-rest.dev.ennew.com
+ELK_KAFKA_HOSTS=rdfa-log-kafka.dev.ennew.com:9092
+ENABLE_IAST=TRUE
+testKey=testVal

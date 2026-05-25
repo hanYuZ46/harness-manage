@@ -91,6 +91,7 @@ type Handler struct {
 	Analytics             analytics.Client
 	PATCache              *auth.PATCache
 	DaemonTokenCache      *auth.DaemonTokenCache
+	MemoryClient          *service.MemoryClient
 	cfg                   Config
 }
 
@@ -111,6 +112,21 @@ func New(queries *db.Queries, txStarter txStarter, hub *realtime.Hub, bus *event
 
 	taskSvc := service.NewTaskService(queries, txStarter, hub, bus, daemonHub)
 	taskSvc.Analytics = analyticsClient
+
+	// Initialize memory client
+	memoryConfig := service.LoadMemoryConfig()
+	var memoryClient *service.MemoryClient
+	if memoryConfig.Enabled {
+		memoryClient = service.NewMemoryClient(
+			memoryConfig.BaseURL,
+			memoryConfig.AuthToken,
+			slog.Default(),
+		)
+		slog.Info("memory client initialized", "base_url", memoryConfig.BaseURL)
+	} else {
+		slog.Warn("memory client disabled", "reason", "no base URL configured")
+	}
+
 	return &Handler{
 		Queries:               queries,
 		DB:                    executor,
@@ -130,6 +146,7 @@ func New(queries *db.Queries, txStarter txStarter, hub *realtime.Hub, bus *event
 		Storage:               store,
 		CFSigner:              cfSigner,
 		Analytics:             analyticsClient,
+		MemoryClient:          memoryClient,
 		cfg:                   cfg,
 	}
 }

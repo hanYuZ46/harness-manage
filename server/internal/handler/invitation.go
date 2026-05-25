@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -444,6 +446,34 @@ func (h *Handler) AcceptInvitation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	slog.Info("invitation accepted", "invitation_id", invitationID, "user_id", userID, "workspace_id", uuidToString(accepted.WorkspaceID))
+
+	// Async ensure memory bank exists (non-blocking)
+	// This handles the case where a user joins an existing workspace that
+	// was created before the memory bank integration was added.
+	if h.MemoryClient != nil {
+		go func() {
+			ws, err := h.Queries.GetWorkspace(r.Context(), accepted.WorkspaceID)
+			if err != nil {
+				slog.Warn("failed to load workspace for memory bank creation",
+					"workspace_id", uuidToString(accepted.WorkspaceID),
+					"error", err,
+				)
+				return
+			}
+			bankID := fmt.Sprintf("ws-%s", uuidToString(accepted.WorkspaceID))
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			if err := h.MemoryClient.EnsureBank(ctx, bankID, ws.Name); err != nil {
+				slog.Warn("memory bank ensure failed",
+					"workspace_id", uuidToString(accepted.WorkspaceID),
+					"name", ws.Name,
+					"error", err,
+				)
+				// Don't fail the invitation - just log and continue
+			}
+		}()
+	}
 
 	wsID := uuidToString(accepted.WorkspaceID)
 	memberResp := memberWithUserResponse(member, user)

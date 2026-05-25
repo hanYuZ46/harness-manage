@@ -1,6 +1,6 @@
 # Self-Hosting Setup (for AI Agents)
 
-This document is designed for AI agents to execute. Follow these steps exactly to deploy a local Multica instance and connect to it.
+This document is designed for AI agents to execute. Follow these steps exactly to deploy a local Harness Manager instance and connect to it.
 
 ## Prerequisites
 
@@ -12,30 +12,30 @@ This document is designed for AI agents to execute. Follow these steps exactly t
 
 ```bash
 # Install CLI + provision self-host server
-curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --with-server
+curl -fsSL https://raw.githubusercontent.com/hanYuZ46/harness-manage/main/scripts/install.sh | bash -s -- --with-server
 
 # Configure CLI for localhost, authenticate, and start daemon
-multica setup self-host
+harness setup self-host
 ```
 
-Wait for the server output `✓ Multica server is running and CLI is ready!` before running `multica setup self-host`.
+Wait for the server output `✓ harness server is running and CLI is ready!` before running `harness setup self-host`.
 
 **Expected result:**
 - Frontend at http://localhost:3000
 - Backend at http://localhost:8080
-- `multica` CLI installed and configured for localhost
+- `harness` CLI installed and configured for localhost
 
 ## Alternative: Manual Setup
 
 ```bash
-git clone https://github.com/multica-ai/multica.git
-cd multica
+git clone https://github.com/hanYuZ46/harness-manage.git
+cd harness-manage
 make selfhost
-brew install multica-ai/tap/multica
-multica setup self-host
+brew install hanYuZ46/tap/harness-manager
+harness setup self-host
 ```
 
-The `multica setup self-host` command will:
+The `harness setup self-host` command will:
 1. Configure CLI to connect to localhost:8080 / localhost:3000
 2. Open a browser for login — use the emailed code, or the generated code printed in backend logs when Resend is unset
 3. Discover workspaces automatically
@@ -44,7 +44,7 @@ The `multica setup self-host` command will:
 ## Verification
 
 ```bash
-multica daemon status
+harness daemon status
 ```
 
 Should show `running` with detected agents.
@@ -53,10 +53,10 @@ Should show `running` with detected agents.
 
 ```bash
 # Stop the daemon
-multica daemon stop
+harness daemon stop
 
 # Stop all Docker services
-cd multica
+cd harness-manage
 make selfhost-stop
 ```
 

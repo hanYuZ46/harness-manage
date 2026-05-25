@@ -2,12 +2,14 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
+	"time"
 	"unicode/utf8"
 
 	"github.com/go-chi/chi/v5"
@@ -560,6 +562,31 @@ func (h *Handler) CreateAgent(w http.ResponseWriter, r *http.Request) {
 		isFirstAgent,
 	))
 
+	// Store memory of agent creation
+	if h.MemoryClient != nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			bankID := fmt.Sprintf("ws-%s", workspaceID)
+			memoryContent := fmt.Sprintf("用户创建了智能体：%s", req.Name)
+			_ = h.MemoryClient.Retain(ctx, bankID, service.RetainRequest{
+				Items: []service.MemoryItem{
+					{
+						Content: memoryContent,
+						Context: "agent_created",
+						Metadata: map[string]string{
+							"agent_id": uuidToString(agent.ID),
+							"agent_name": req.Name,
+						},
+						Tags: []string{"agent_created"},
+					},
+				},
+				Async:    true,
+				FactType: "experience",
+			})
+		}()
+	}
+
 	writeJSON(w, http.StatusCreated, resp)
 }
 
@@ -745,6 +772,32 @@ func (h *Handler) UpdateAgent(w http.ResponseWriter, r *http.Request) {
 	userID := requestUserID(r)
 	actorType, actorID := h.resolveActor(r, userID, uuidToString(agent.WorkspaceID))
 	h.publish(protocol.EventAgentStatus, uuidToString(agent.WorkspaceID), actorType, actorID, map[string]any{"agent": resp})
+
+	// Store memory of agent update
+	if h.MemoryClient != nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			bankID := fmt.Sprintf("ws-%s", uuidToString(agent.WorkspaceID))
+			memoryContent := fmt.Sprintf("用户更新了智能体：%s", agent.Name)
+			_ = h.MemoryClient.Retain(ctx, bankID, service.RetainRequest{
+				Items: []service.MemoryItem{
+					{
+						Content: memoryContent,
+						Context: "agent_updated",
+						Metadata: map[string]string{
+							"agent_id": uuidToString(agent.ID),
+							"agent_name": agent.Name,
+						},
+						Tags: []string{"agent_updated"},
+					},
+				},
+				Async:    true,
+				FactType: "experience",
+			})
+		}()
+	}
+
 	writeJSON(w, http.StatusOK, resp)
 }
 
@@ -788,6 +841,32 @@ func (h *Handler) ArchiveAgent(w http.ResponseWriter, r *http.Request) {
 	resp := agentToResponse(archived)
 	actorType, actorID := h.resolveActor(r, userID, wsID)
 	h.publish(protocol.EventAgentArchived, wsID, actorType, actorID, map[string]any{"agent": resp})
+
+	// Store memory of agent archive
+	if h.MemoryClient != nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			bankID := fmt.Sprintf("ws-%s", wsID)
+			memoryContent := fmt.Sprintf("用户归档了智能体：%s", agent.Name)
+			_ = h.MemoryClient.Retain(ctx, bankID, service.RetainRequest{
+				Items: []service.MemoryItem{
+					{
+						Content: memoryContent,
+						Context: "agent_archived",
+						Metadata: map[string]string{
+							"agent_id": uuidToString(agent.ID),
+							"agent_name": agent.Name,
+						},
+						Tags: []string{"agent_archived"},
+					},
+				},
+				Async:    true,
+				FactType: "experience",
+			})
+		}()
+	}
+
 	writeJSON(w, http.StatusOK, resp)
 }
 
@@ -818,6 +897,32 @@ func (h *Handler) RestoreAgent(w http.ResponseWriter, r *http.Request) {
 	userID := requestUserID(r)
 	actorType, actorID := h.resolveActor(r, userID, wsID)
 	h.publish(protocol.EventAgentRestored, wsID, actorType, actorID, map[string]any{"agent": resp})
+
+	// Store memory of agent restore
+	if h.MemoryClient != nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			bankID := fmt.Sprintf("ws-%s", wsID)
+			memoryContent := fmt.Sprintf("用户恢复了智能体：%s", agent.Name)
+			_ = h.MemoryClient.Retain(ctx, bankID, service.RetainRequest{
+				Items: []service.MemoryItem{
+					{
+						Content: memoryContent,
+						Context: "agent_restored",
+						Metadata: map[string]string{
+							"agent_id": uuidToString(agent.ID),
+							"agent_name": agent.Name,
+						},
+						Tags: []string{"agent_restored"},
+					},
+				},
+				Async:    true,
+				FactType: "experience",
+			})
+		}()
+	}
+
 	writeJSON(w, http.StatusOK, resp)
 }
 

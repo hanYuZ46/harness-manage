@@ -10,29 +10,16 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/multica-ai/multica/server/internal/service"
 )
 
 // MemoryListResponse is the response for listing memories
 type MemoryListResponse struct {
-	Memories []MemoryResult `json:"memories"`
-	Total    int            `json:"total"`
-}
-
-// MemoryResult represents a memory result from the recall API
-type MemoryResult struct {
-	ID      string   `json:"id"`
-	Text    string   `json:"text"`
-	Score   float64  `json:"score"`
-	Tags    []string `json:"tags"`
-	Metadata struct {
-		OccurredAt *string `json:"occurred_at,omitempty"`
-		DocumentID *string `json:"document_id,omitempty"`
-		ChunkID    *string `json:"chunk_id,omitempty"`
-	} `json:"metadata,omitempty"`
+	Memories []service.MemoryResult `json:"memories"`
+	Total    int                    `json:"total"`
 }
 
 // GetMemories retrieves memories from the workspace's memory bank
-// GET /api/workspaces/{workspaceId}/memories
 func (h *Handler) GetMemories(w http.ResponseWriter, r *http.Request) {
 	// Get workspace ID from URL parameter
 	wsID := chi.URLParam(r, "workspaceId")
@@ -41,78 +28,112 @@ func (h *Handler) GetMemories(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	bankID := fmt.Sprintf("ws-%s", wsID)
+
 	// Parse query parameters
 	agentID := r.URL.Query().Get("agent_id")
 	query := strings.TrimSpace(r.URL.Query().Get("query"))
 
+	if h.MemoryClient == nil {
+		writeError(w, http.StatusServiceUnavailable, "memory service not configured")
+		return
+	}
+
 	// If query is empty and no agent_id, return empty results
+	// (enn-memory API requires a non-empty query)
 	if query == "" && agentID == "" {
 		writeJSON(w, http.StatusOK, MemoryListResponse{
-			Memories: []MemoryResult{},
+			Memories: []service.MemoryResult{},
 			Total:    0,
 		})
 		return
 	}
 
-	// Build bank_id as ws-{workspaceId}
-	bankID := fmt.Sprintf("ws-%s", wsID)
-
-	// Build upstream URL
-	memoryServiceURL := "https://enn-memory.dev.ennew.com/v1/default/banks/" + url.PathEscape(bankID) + "/recall"
-	upstreamURL, err := url.Parse(memoryServiceURL)
-	if err != nil {
-		slog.ErrorContext(r.Context(), "failed to parse memory service URL", "error", err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+	// Build recall request - only include non-empty fields to avoid API errors
+	recallReq := service.RecallRequest{
+		Query: query,
+		Limit: 100,
 	}
 
-	// Add query parameters
-	q := upstreamURL.Query()
-	if query != "" {
-		q.Set("query", query)
-	}
-	if agentID != "" {
-		q.Set("agent_id", agentID)
-	}
+	// Only add tags if query param is provided
 	tagValues := r.URL.Query()["tags"]
-	for _, tag := range tagValues {
-		q.Add("tags", tag)
+	if len(tagValues) > 0 {
+		recallReq.Tags = tagValues
 	}
-	upstreamURL.RawQuery = q.Encode()
 
-	// Create upstream request
-	upstreamReq, err := http.NewRequestWithContext(r.Context(), "GET", upstreamURL.String(), nil)
+	// If agent_id is provided, add to tags
+	if agentID != "" {
+		recallReq.Tags = append(recallReq.Tags, fmt.Sprintf("agent:%s", agentID))
+	}
+
+	// Query memories
+	memories, err := h.MemoryClient.Recall(r.Context(), bankID, recallReq)
 	if err != nil {
-		slog.ErrorContext(r.Context(), "failed to create upstream request", "error", err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	// Set headers
-	upstreamReq.Header.Set("Accept", "*/*")
-	upstreamReq.Header.Set("Content-Type", "application/json")
-
-	// Execute upstream request
-	client := &http.Client{}
-	resp, err := client.Do(upstreamReq)
-	if err != nil {
-		slog.ErrorContext(r.Context(), "failed to fetch from memory service", "error", err, "url", upstreamURL.String())
-		http.Error(w, "failed to fetch from memory service", http.StatusBadGateway)
-		return
-	}
-	defer resp.Body.Close()
-
-	// Copy status code
-	w.WriteHeader(resp.StatusCode)
-
-	// Copy response body
-	_, err = io.Copy(w, resp.Body)
-	if err != nil {
-		slog.ErrorContext(r.Context(), "failed to copy response body", "error", err)
-	}
+	writeJSON(w, http.StatusOK, MemoryListResponse{
+		Memories: memories,
+		Total:    len(memories),
+	})
 }
 
-// GetMemoryGraph proxies the memory graph request to enn-memory service
+// MemoryGraphResponse is the response for the memory graph
+type MemoryGraphResponse struct {
+	Nodes      []MemoryGraphNode     `json:"nodes"`
+	Edges      []MemoryGraphEdge     `json:"edges,omitempty"`
+	TableRows  []MemoryGraphTableRow `json:"table_rows,omitempty"`
+	TotalUnits int                   `json:"total_units,omitempty"`
+}
+
+// MemoryGraphNode represents a node in the memory graph
+type MemoryGraphNode struct {
+	Data MemoryGraphNodeData `json:"data"`
+}
+
+// MemoryGraphNodeData represents node data
+type MemoryGraphNodeData struct {
+	ID    string  `json:"id"`
+	Label *string `json:"label,omitempty"`
+	Color *string `json:"color,omitempty"`
+}
+
+// MemoryGraphEdge represents an edge in the memory graph
+type MemoryGraphEdge struct {
+	Data MemoryGraphEdgeData `json:"data"`
+}
+
+// MemoryGraphEdgeData represents edge data
+type MemoryGraphEdgeData struct {
+	Source     string   `json:"source"`
+	Target     string   `json:"target"`
+	Color      *string  `json:"color,omitempty"`
+	LineStyle  *string  `json:"lineStyle,omitempty"`
+	LinkType   *string  `json:"linkType,omitempty"`
+	EntityName *string  `json:"entityName,omitempty"`
+	Weight     *float64 `json:"weight,omitempty"`
+	Similarity *float64 `json:"similarity,omitempty"`
+}
+
+// MemoryGraphTableRow represents a table row in the memory graph response
+type MemoryGraphTableRow struct {
+	ID            string   `json:"id"`
+	Text          string   `json:"text"`
+	Entities      *string  `json:"entities,omitempty"`
+	Context       *string  `json:"context,omitempty"`
+	Tags          []string `json:"tags,omitempty"`
+	OccurredStart *string  `json:"occurred_start,omitempty"`
+	OccurredEnd   *string  `json:"occurred_end,omitempty"`
+	MentionedAt   *string  `json:"mentioned_at,omitempty"`
+	Date          *string  `json:"date,omitempty"`
+	DocumentID    *string  `json:"document_id,omitempty"`
+	ChunkID       *string  `json:"chunk_id,omitempty"`
+	FactType      *string  `json:"fact_type,omitempty"`
+	ProofCount    *int     `json:"proof_count,omitempty"`
+}
+
+// GetMemoryGraph proxies the memory graph request to enn-memory-clients service
 // GET /api/workspaces/{workspaceId}/memories/graph
 func (h *Handler) GetMemoryGraph(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -191,7 +212,7 @@ func (h *Handler) GetMemoryGraph(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetMemoryDetail proxies the memory detail request to enn-memory service
+// GetMemoryDetail proxies the memory detail request to enn-memory-clients service
 // GET /api/workspaces/{workspaceId}/memories/{memoryId}
 func (h *Handler) GetMemoryDetail(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

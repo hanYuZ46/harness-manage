@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -42,6 +44,37 @@ func redisClientName(existing, suffix string) string {
 		return existing + ":" + suffix
 	}
 	return "multica-api:" + suffix
+}
+
+// loadEnvFile loads environment variables from a .env file
+func loadEnvFile(path string) {
+	file, err := os.Open(path)
+	if err != nil {
+		// Silently ignore if .env file doesn't exist
+		return
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		// Skip empty lines and comments
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		// Parse KEY=VALUE
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			value := strings.TrimSpace(parts[1])
+			// Remove surrounding quotes if present
+			value = strings.Trim(value, "\"'")
+			// Only set if not already set (command line env takes precedence)
+			if os.Getenv(key) == "" {
+				os.Setenv(key, value)
+			}
+		}
+	}
 }
 
 func closeRedisClient(label string, client *redis.Client) {
@@ -117,6 +150,14 @@ func envDuration(name string, def time.Duration) time.Duration {
 }
 
 func main() {
+	// Load .env from project root (two levels up from server/cmd/server)
+	if wd, err := os.Getwd(); err == nil {
+		// Try loading from project root (parent of server/)
+		projectRoot := filepath.Join(wd, "..")
+		envFile := filepath.Join(projectRoot, ".env")
+		loadEnvFile(envFile)
+	}
+
 	logger.Init()
 
 	// Warn about missing configuration

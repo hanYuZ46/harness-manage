@@ -1,11 +1,14 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -107,6 +110,25 @@ func (h *Handler) ListWorkspaces(w http.ResponseWriter, r *http.Request) {
 	resp := make([]WorkspaceResponse, len(workspaces))
 	for i, ws := range workspaces {
 		resp[i] = workspaceToResponse(ws)
+	}
+
+	// Async ensure memory bank exists for each workspace (non-blocking)
+	// This handles legacy workspaces created before memory bank integration.
+	if h.MemoryClient != nil && len(workspaces) > 0 {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			for _, ws := range workspaces {
+				bankID := fmt.Sprintf("ws-%s", uuidToString(ws.ID))
+				if err := h.MemoryClient.EnsureBank(ctx, bankID, ws.Name); err != nil {
+					slog.Warn("memory bank ensure failed",
+						"workspace_id", uuidToString(ws.ID),
+						"name", ws.Name,
+						"error", err,
+					)
+				}
+			}
+		}()
 	}
 
 	writeJSON(w, http.StatusOK, resp)
@@ -212,6 +234,24 @@ func (h *Handler) CreateWorkspace(w http.ResponseWriter, r *http.Request) {
 	if err := tx.Commit(r.Context()); err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to create workspace")
 		return
+	}
+
+	// Async create memory bank (non-blocking)
+	if h.MemoryClient != nil {
+		go func() {
+			bankID := fmt.Sprintf("ws-%s", uuidToString(ws.ID))
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			if err := h.MemoryClient.CreateBank(ctx, bankID, ws.Name); err != nil {
+				slog.Warn("memory bank creation failed",
+					"workspace_id", uuidToString(ws.ID),
+					"name", ws.Name,
+					"error", err,
+				)
+				// Don't fail workspace creation - just log and continue
+			}
+		}()
 	}
 
 	// "Is this the user's first workspace?" is derived in PostHog by looking

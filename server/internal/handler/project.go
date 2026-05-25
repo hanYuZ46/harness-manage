@@ -9,10 +9,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/multica-ai/multica/server/pkg/db/generated"
+	"github.com/multica-ai/multica/server/internal/service"
 	"github.com/multica-ai/multica/server/pkg/protocol"
 )
 
@@ -326,7 +328,6 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 			"project_id": resp.ID,
 		})
 	}
-	// One-shot create echo: the parent ProjectResponse fields plus the just-
 	// created resources. This is a transient creation echo, not a contract for
 	// reads — GET /projects/{id} stays metadata-only with resource_count.
 	writeJSON(w, http.StatusCreated, struct {
@@ -336,6 +337,31 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		ProjectResponse: resp,
 		Resources:       resourceResp,
 	})
+
+	// Store memory of project creation
+	if h.MemoryClient != nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			bankID := fmt.Sprintf("ws-%s", workspaceID)
+			memoryContent := fmt.Sprintf("用户创建了项目：%s", req.Title)
+			_ = h.MemoryClient.Retain(ctx, bankID, service.RetainRequest{
+				Items: []service.MemoryItem{
+					{
+						Content: memoryContent,
+						Context: "project_created",
+						Metadata: map[string]string{
+							"project_id": uuidToString(project.ID),
+							"project_name": req.Title,
+						},
+						Tags: []string{"project_created"},
+					},
+				},
+				Async:    true,
+				FactType: "experience",
+			})
+		}()
+	}
 }
 
 func (h *Handler) UpdateProject(w http.ResponseWriter, r *http.Request) {
@@ -429,6 +455,32 @@ func (h *Handler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 	resp := projectToResponse(project)
 	resp.ResourceCount = h.loadProjectResourceCount(r.Context(), project.ID)
 	h.publish(protocol.EventProjectUpdated, workspaceID, "member", userID, map[string]any{"project": resp})
+
+	// Store memory of project update
+	if h.MemoryClient != nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			bankID := fmt.Sprintf("ws-%s", workspaceID)
+			memoryContent := fmt.Sprintf("用户更新了项目：%s", project.Title)
+			_ = h.MemoryClient.Retain(ctx, bankID, service.RetainRequest{
+				Items: []service.MemoryItem{
+					{
+						Content: memoryContent,
+						Context: "project_updated",
+						Metadata: map[string]string{
+							"project_id": uuidToString(project.ID),
+							"project_name": project.Title,
+						},
+						Tags: []string{"project_updated"},
+					},
+				},
+				Async:    true,
+				FactType: "experience",
+			})
+		}()
+	}
+
 	writeJSON(w, http.StatusOK, resp)
 }
 
@@ -459,6 +511,32 @@ func (h *Handler) DeleteProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.publish(protocol.EventProjectDeleted, workspaceID, "member", userID, map[string]any{"project_id": uuidToString(project.ID)})
+
+	// Store memory of project deletion
+	if h.MemoryClient != nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			bankID := fmt.Sprintf("ws-%s", workspaceID)
+			memoryContent := fmt.Sprintf("用户删除了项目：%s", project.Title)
+			_ = h.MemoryClient.Retain(ctx, bankID, service.RetainRequest{
+				Items: []service.MemoryItem{
+					{
+						Content: memoryContent,
+						Context: "project_deleted",
+						Metadata: map[string]string{
+							"project_id": uuidToString(project.ID),
+							"project_name": project.Title,
+						},
+						Tags: []string{"project_deleted"},
+					},
+				},
+				Async:    true,
+				FactType: "experience",
+			})
+		}()
+	}
+
 	w.WriteHeader(http.StatusNoContent)
 }
 

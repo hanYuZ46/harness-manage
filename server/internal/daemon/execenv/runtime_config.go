@@ -80,12 +80,12 @@ func InjectRuntimeConfig(workDir, provider string, ctx TaskContextForEnv) (strin
 }
 
 // buildMetaSkillContent generates the meta skill markdown that teaches the agent
-// about the Multica runtime environment and available CLI tools.
+// about the harness-manager runtime environment and available CLI tools.
 func buildMetaSkillContent(provider string, ctx TaskContextForEnv) string {
 	var b strings.Builder
 
-	b.WriteString("# Multica Agent Runtime\n\n")
-	b.WriteString("You are a coding agent in the Multica platform. Use the `multica` CLI to interact with the platform.\n\n")
+	b.WriteString("# harness-manager Agent Runtime\n\n")
+	b.WriteString("You are a coding agent in the harness-manager platform. Use the `multica` CLI to interact with the platform.\n\n")
 
 	// Always emit agent identity so the agent knows who it is, even when
 	// dispatched via @mention on an issue assigned to a different agent.
