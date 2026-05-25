@@ -174,7 +174,7 @@ func TestPrepareWithProjectResources(t *testing.T) {
 	defer env.Cleanup(true)
 
 	// resources.json should exist and decode back to what we wrote.
-	resourcesPath := filepath.Join(env.WorkDir, ".multica", "project", "resources.json")
+	resourcesPath := filepath.Join(env.WorkDir, ".harness", "project", "resources.json")
 	raw, err := os.ReadFile(resourcesPath)
 	if err != nil {
 		t.Fatalf("failed to read resources.json: %v", err)
@@ -216,7 +216,7 @@ func TestPrepareWithProjectResources(t *testing.T) {
 		"GitHub repo",
 		"https://github.com/multica-ai/multica",
 		"default branch: `main`",
-		".multica/project/resources.json",
+		".harness/project/resources.json",
 	} {
 		if !strings.Contains(s, want) {
 			t.Errorf("CLAUDE.md missing %q", want)
@@ -272,7 +272,7 @@ func TestWriteProjectResourcesSkippedWhenNone(t *testing.T) {
 	if err := writeProjectResources(dir, TaskContextForEnv{}); err != nil {
 		t.Fatalf("writeProjectResources: %v", err)
 	}
-	if _, err := os.Stat(filepath.Join(dir, ".multica", "project", "resources.json")); !os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(dir, ".harness", "project", "resources.json")); !os.IsNotExist(err) {
 		t.Errorf("expected no resources.json to be written when project context is empty")
 	}
 }
@@ -325,7 +325,7 @@ func TestPrepareWithRepoContext(t *testing.T) {
 	}
 	s := string(content)
 	for _, want := range []string{
-		"multica repo checkout",
+		"harness repo checkout",
 		"https://github.com/org/backend",
 		"https://github.com/org/frontend",
 	} {
@@ -450,14 +450,14 @@ func TestWriteContextFilesAutopilotRunOnly(t *testing.T) {
 		"run-1",
 		"autopilot-1",
 		"Check dependencies and report outdated packages.",
-		"multica autopilot get autopilot-1 --output json",
+		"harness autopilot get autopilot-1 --output json",
 		"no assigned issue",
 	} {
 		if !strings.Contains(s, want) {
 			t.Errorf("autopilot context missing %q\n---\n%s", want, s)
 		}
 	}
-	if strings.Contains(s, "Run `multica issue get") {
+	if strings.Contains(s, "Run `harness issue get") {
 		t.Errorf("autopilot context should not contain issue get workflow\n---\n%s", s)
 	}
 }
@@ -572,9 +572,9 @@ func TestInjectRuntimeConfigClaude(t *testing.T) {
 
 	s := string(content)
 	for _, want := range []string{
-		"Multica Agent Runtime",
-		"multica issue get",
-		"multica issue comment list",
+		"harness-manager Agent Runtime",
+		"harness issue get",
+		"harness issue comment list",
 		"Go Conventions",
 		"PR Review",
 		"discovered automatically",
@@ -603,8 +603,8 @@ func TestInjectRuntimeConfigAutopilotAdvertisesBothModes(t *testing.T) {
 
 	s := string(content)
 	for _, want := range []string{
-		"multica autopilot create --title \"...\" --agent <name> --mode create_issue|run_only",
-		"multica autopilot update <id>",
+		"harness autopilot create --title \"...\" --agent <name> --mode create_issue|run_only",
+		"harness autopilot update <id>",
 		"[--mode create_issue|run_only]",
 	} {
 		if !strings.Contains(s, want) {
@@ -633,8 +633,8 @@ func TestInjectRuntimeConfigGemini(t *testing.T) {
 
 	s := string(content)
 	for _, want := range []string{
-		"Multica Agent Runtime",
-		"multica issue get",
+		"harness-manager Agent Runtime",
+		"harness issue get",
 		"Writing",
 	} {
 		if !strings.Contains(s, want) {
@@ -670,7 +670,7 @@ func TestInjectRuntimeConfigCodex(t *testing.T) {
 	}
 
 	s := string(content)
-	if !strings.Contains(s, "Multica Agent Runtime") {
+	if !strings.Contains(s, "harness-manager Agent Runtime") {
 		t.Error("AGENTS.md missing meta skill header")
 	}
 	if !strings.Contains(s, "Coding") {
@@ -694,7 +694,7 @@ func TestInjectRuntimeConfigNoSkills(t *testing.T) {
 	}
 
 	s := string(content)
-	if !strings.Contains(s, "multica issue get") {
+	if !strings.Contains(s, "harness issue get") {
 		t.Error("should reference multica CLI even without skills")
 	}
 	if strings.Contains(s, "## Skills") {
@@ -849,7 +849,7 @@ func TestInjectRuntimeConfigOpencode(t *testing.T) {
 	}
 
 	s := string(content)
-	if !strings.Contains(s, "Multica Agent Runtime") {
+	if !strings.Contains(s, "harness-manager Agent Runtime") {
 		t.Error("AGENTS.md missing meta skill header")
 	}
 	if !strings.Contains(s, "Coding") {
@@ -884,7 +884,7 @@ func TestInjectRuntimeConfigKiro(t *testing.T) {
 	}
 
 	s := string(content)
-	if !strings.Contains(s, "Multica Agent Runtime") {
+	if !strings.Contains(s, "harness-manager Agent Runtime") {
 		t.Error("AGENTS.md missing meta skill header")
 	}
 	if !strings.Contains(s, "Coding") {
@@ -941,7 +941,7 @@ func TestPrepareWithRepoContextOpencode(t *testing.T) {
 	}
 	s := string(content)
 	for _, want := range []string{
-		"multica repo checkout",
+		"harness repo checkout",
 		"https://github.com/org/backend",
 	} {
 		if !strings.Contains(s, want) {
@@ -983,10 +983,10 @@ func TestInjectRuntimeConfigRequiresExplicitCommentPost(t *testing.T) {
 			}
 			s := string(data)
 
-			// The workflow must contain an explicit `multica issue comment add`
+			// The workflow must contain an explicit `harness issue comment add`
 			// invocation for this issue — not just a prose mention of posting.
 			mustContain := []string{
-				"multica issue comment add issue-1",
+				"harness issue comment add issue-1",
 				"mandatory",
 			}
 			for _, want := range mustContain {
@@ -999,7 +999,7 @@ func TestInjectRuntimeConfigRequiresExplicitCommentPost(t *testing.T) {
 			// output is not user-visible. This is the second line of defense
 			// in case the agent skips past the workflow steps.
 			for _, want := range []string{
-				"Final results MUST be delivered via `multica issue comment add`",
+				"Final results MUST be delivered via `harness issue comment add`",
 				"does NOT see your terminal output",
 			} {
 				if !strings.Contains(s, want) {
@@ -1124,7 +1124,7 @@ func TestInjectRuntimeConfigCodexLinuxEmphasizesStdin(t *testing.T) {
 // the Codex-Specific section directs the agent at `--content-file` instead
 // of `--content-stdin`. PowerShell 5.1 / cmd.exe re-encode piped HEREDOC
 // bytes through the active console codepage and silently drop non-ASCII
-// as `?` before reaching `multica.exe` (#2198 / #2236 / #2376).
+// as `?` before reaching `harness.exe` (#2198 / #2236 / #2376).
 //
 // Not parallel: mutates the package-level runtimeGOOS.
 func TestInjectRuntimeConfigCodexWindowsUsesContentFile(t *testing.T) {
@@ -1185,7 +1185,7 @@ func TestInjectRuntimeConfigAutopilotRunOnlyNoIssueWorkflow(t *testing.T) {
 		"Autopilot in run-only mode",
 		"Autopilot run ID: `run-1`",
 		"Check dependencies and report outdated packages.",
-		"multica autopilot get autopilot-1 --output json",
+		"harness autopilot get autopilot-1 --output json",
 		"Your final assistant output is captured automatically as the autopilot run result",
 	} {
 		if !strings.Contains(s, want) {
@@ -1194,8 +1194,8 @@ func TestInjectRuntimeConfigAutopilotRunOnlyNoIssueWorkflow(t *testing.T) {
 	}
 
 	for _, absent := range []string{
-		"Run `multica issue get",
-		"Final results MUST be delivered via `multica issue comment add`",
+		"Run `harness issue get",
+		"Final results MUST be delivered via `harness issue comment add`",
 	} {
 		if strings.Contains(s, absent) {
 			t.Errorf("autopilot runtime config should not contain %q\n---\n%s", absent, s)
@@ -1239,7 +1239,7 @@ func TestInjectRuntimeConfigHermes(t *testing.T) {
 	}
 
 	s := string(content)
-	if !strings.Contains(s, "Multica Agent Runtime") {
+	if !strings.Contains(s, "harness-manager Agent Runtime") {
 		t.Error("AGENTS.md missing meta skill header")
 	}
 	if !strings.Contains(s, "Coding") {
