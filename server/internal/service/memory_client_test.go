@@ -62,7 +62,7 @@ func TestMemoryClient_Recall(t *testing.T) {
 	client, server := newTestMemoryClient(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(RecallResponse{
-			Memories: []MemoryItem{
+			Results: []MemoryResult{
 				{ID: "mem-1", Content: "Memory 1"},
 				{ID: "mem-2", Content: "Memory 2"},
 			},
