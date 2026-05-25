@@ -118,8 +118,8 @@ install_cli() {
 
   # Hard fallback if version detection fails
   if [ -z "$latest" ]; then
-    info "Using latest stable release v0.2.7"
-    latest="v0.2.7"
+    info "Using latest stable release v0.2.9"
+    latest="v0.2.9"
   fi
 
   local version="${latest#v}"
@@ -127,35 +127,18 @@ install_cli() {
   local source_name=""
   local curl_cmd="curl -fsSL --max-time 60"
 
-  # Use mirror if GITHUB_MIRROR_URL is set (for China network)
-  if [ -n "${GITHUB_MIRROR_URL:-}" ]; then
-    url="${GITHUB_MIRROR_URL}/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-    source_name="GitHub Releases (mirror)"
+  # Always try direct GitHub Releases first for binary downloads.
+  # (ghproxy.cc mirrors work for API/raw content but not release assets.)
+  url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+  source_name="GitHub Releases (direct)"
+
+  # Verify direct GitHub is accessible
+  if ! curl -sfI --max-time 15 "$url" >/dev/null 2>&1; then
+    info "GitHub not accessible, trying GitLab..."
+    url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+    source_name="GitLab Releases"
     curl_cmd="curl -fsSLk --max-time 60"
 
-    # Verify mirror is accessible
-    if ! curl -sfIk --max-time 15 "$url" >/dev/null 2>&1; then
-      info "Mirror not accessible, trying direct GitHub..."
-      url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-      source_name="GitHub Releases (direct)"
-      curl_cmd="curl -fsSL --max-time 60"
-    fi
-  else
-    # No mirror set, try direct GitHub first
-    url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-    source_name="GitHub Releases (direct)"
-
-    # Verify direct GitHub is accessible
-    if ! curl -sfI --max-time 15 "$url" >/dev/null 2>&1; then
-      info "GitHub not accessible, trying GitLab..."
-      url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-      source_name="GitLab Releases"
-    fi
-  fi
-
-  # Skip GitLab fallback if using mirror (mirror should work)
-  # Only check GitLab if not using mirror
-  if [ -z "${GITHUB_MIRROR_URL:-}" ]; then
     # Fallback to GitLab CI artifacts
     if ! curl -sfI --max-time 10 "$url" >/dev/null 2>&1; then
       info "GitLab release not found, trying CI artifacts..."
@@ -163,7 +146,6 @@ install_cli() {
       source_name="GitLab CI"
     fi
   fi
-  # When using mirror, skip GitLab checks and proceed directly to download
 
   local tmp_dir
   tmp_dir=$(mktemp -d)
