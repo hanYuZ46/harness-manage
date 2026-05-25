@@ -551,13 +551,6 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 				r.Post("/{id}/archive", h.ArchiveInboxItem)
 			})
 
-			// Memory
-			r.Route("/api/workspaces/{workspaceId}/memories", func(r chi.Router) {
-				r.Get("/", h.GetMemories)
-				r.Get("/graph", h.GetMemoryGraph)
-				r.Get("/{memoryId}", h.GetMemoryDetail)
-			})
-
 			// Notification preferences
 			r.Route("/api/notification-preferences", func(r chi.Router) {
 				r.Get("/", h.GetNotificationPreferences)
