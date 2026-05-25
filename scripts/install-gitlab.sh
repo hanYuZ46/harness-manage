@@ -127,23 +127,28 @@ install_cli() {
   local source_name=""
   local curl_cmd="curl -fsSL --max-time 60"
 
-  # Always try direct GitHub Releases first for binary downloads.
-  # (ghproxy.cc mirrors work for API/raw content but not release assets.)
-  url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-  source_name="GitHub Releases (direct)"
+  # Try GitHub mirror first (for China network), then direct GitHub, then GitLab.
+  url="${GITHUB_MIRROR}/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+  source_name="GitHub Releases (mirror)"
+  curl_cmd="curl -fsSLk --max-time 60"
 
-  # Verify direct GitHub is accessible
   if ! curl -sfI --max-time 15 "$url" >/dev/null 2>&1; then
-    info "GitHub not accessible, trying GitLab..."
-    url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-    source_name="GitLab Releases"
-    curl_cmd="curl -fsSLk --max-time 60"
+    info "Mirror not accessible, trying direct GitHub..."
+    url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+    source_name="GitHub Releases (direct)"
+    curl_cmd="curl -fsSL --max-time 60"
 
-    # Fallback to GitLab CI artifacts
-    if ! curl -sfI --max-time 10 "$url" >/dev/null 2>&1; then
-      info "GitLab release not found, trying CI artifacts..."
-      url="${GITLAB_URL}/${GITLAB_PROJECT}/-/jobs/artifacts/${latest}/raw/dist/harness-cli-${version}-${OS}-${ARCH}.tar.gz?job=build"
-      source_name="GitLab CI"
+    if ! curl -sfI --max-time 15 "$url" >/dev/null 2>&1; then
+      info "GitHub not accessible, trying GitLab..."
+      url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+      source_name="GitLab Releases"
+      curl_cmd="curl -fsSLk --max-time 60"
+
+      if ! curl -sfI --max-time 10 "$url" >/dev/null 2>&1; then
+        info "GitLab release not found, trying CI artifacts..."
+        url="${GITLAB_URL}/${GITLAB_PROJECT}/-/jobs/artifacts/${latest}/raw/dist/harness-cli-${version}-${OS}-${ARCH}.tar.gz?job=build"
+        source_name="GitLab CI"
+      fi
     fi
   fi
 
