@@ -123,30 +123,43 @@ install_cli() {
   fi
 
   local version="${latest#v}"
+  local binary_name="harness-cli-${version}-${OS}-${ARCH}.tar.gz"
   local url=""
   local source_name=""
   local curl_cmd="curl -fsSL --max-time 60"
 
-  # Try GitHub mirror first (for China network), then direct GitHub, then GitLab.
-  url="${GITHUB_MIRROR}/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
-  source_name="GitHub Releases (mirror)"
-  curl_cmd="curl -fsSLk --max-time 60"
+  # Try multiple GitHub mirrors (for China network), then direct GitHub, then GitLab.
+  local mirrors=(
+    "${GITHUB_MIRROR}"
+    "https://ghproxy.net/https://github.com"
+    "https://mirror.ghproxy.com/https://github.com"
+    "https://ghfast.top/https://github.com"
+  )
+  for mirror in "${mirrors[@]}"; do
+    local mirror_url="${mirror}/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/${binary_name}"
+    if curl -sfI --max-time 10 "$mirror_url" >/dev/null 2>&1; then
+      url="$mirror_url"
+      source_name="GitHub Releases (mirror: ${mirror%%/*})"
+      curl_cmd="curl -fsSLk --max-time 120"
+      break
+    fi
+  done
 
-  if ! curl -sfI --max-time 15 "$url" >/dev/null 2>&1; then
-    info "Mirror not accessible, trying direct GitHub..."
-    url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+  if [ -z "$url" ]; then
+    info "No mirror accessible, trying direct GitHub..."
+    url="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/releases/download/${latest}/${binary_name}"
     source_name="GitHub Releases (direct)"
-    curl_cmd="curl -fsSL --max-time 60"
+    curl_cmd="curl -fsSL --max-time 120"
 
     if ! curl -sfI --max-time 15 "$url" >/dev/null 2>&1; then
       info "GitHub not accessible, trying GitLab..."
-      url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/harness-cli-${version}-${OS}-${ARCH}.tar.gz"
+      url="${GITLAB_URL}/${GITLAB_PROJECT}/-/releases/${latest}/downloads/${binary_name}"
       source_name="GitLab Releases"
       curl_cmd="curl -fsSLk --max-time 60"
 
       if ! curl -sfI --max-time 10 "$url" >/dev/null 2>&1; then
         info "GitLab release not found, trying CI artifacts..."
-        url="${GITLAB_URL}/${GITLAB_PROJECT}/-/jobs/artifacts/${latest}/raw/dist/harness-cli-${version}-${OS}-${ARCH}.tar.gz?job=build"
+        url="${GITLAB_URL}/${GITLAB_PROJECT}/-/jobs/artifacts/${latest}/raw/dist/${binary_name}?job=build"
         source_name="GitLab CI"
       fi
     fi
