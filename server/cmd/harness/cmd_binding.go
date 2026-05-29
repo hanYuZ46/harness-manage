@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -30,8 +31,25 @@ Example:
 	RunE: runBindingCreate,
 }
 
+var bindingListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List all IM group bindings in the workspace",
+	RunE:  runBindingList,
+}
+
+var bindingGetCmd = &cobra.Command{
+	Use:   "get",
+	Short: "Get the IM group bound to an issue",
+	Long: `Get the Turms IM group chat bound to a specific issue.
+
+Example:
+  harness binding get --issue-id ead78284-455f-4605-bdd5-14a1b814b472
+  harness binding get --issue-id SUP-121`,
+	RunE: runBindingGet,
+}
+
 func init() {
-	bindingCreateCmd.Flags().String("issue-id", "", "Issue UUID (required)")
+	bindingCreateCmd.Flags().String("issue-id", "", "Issue UUID or identifier (required)")
 	bindingCreateCmd.Flags().String("group-id", "", "Turms IM group ID (required)")
 	bindingCreateCmd.Flags().String("group-name", "Issue Discussion", "Display name for the group (optional)")
 	bindingCreateCmd.Flags().Int64("requester-id", 0, "Turms userId of the caller, who must already be in the group (default: derived from the logged-in user)")
@@ -39,7 +57,16 @@ func init() {
 	_ = bindingCreateCmd.MarkFlagRequired("issue-id")
 	_ = bindingCreateCmd.MarkFlagRequired("group-id")
 
+	bindingListCmd.Flags().String("entity-type", "issue", "Entity type filter (default: issue)")
+	bindingListCmd.Flags().String("output", "table", "Output format: table or json")
+
+	bindingGetCmd.Flags().String("issue-id", "", "Issue UUID or identifier (required)")
+	bindingGetCmd.Flags().String("output", "json", "Output format: table or json")
+	_ = bindingGetCmd.MarkFlagRequired("issue-id")
+
 	bindingCmd.AddCommand(bindingCreateCmd)
+	bindingCmd.AddCommand(bindingListCmd)
+	bindingCmd.AddCommand(bindingGetCmd)
 }
 
 func runBindingCreate(cmd *cobra.Command, _ []string) error {
@@ -105,6 +132,95 @@ func runBindingCreate(cmd *cobra.Command, _ []string) error {
 
 	fmt.Fprintf(os.Stdout, "\nThe \"Open Group Chat\" button is now available on this issue.\n")
 
+	return nil
+}
+
+func runBindingList(cmd *cobra.Command, _ []string) error {
+	entityType, _ := cmd.Flags().GetString("entity-type")
+	output, _ := cmd.Flags().GetString("output")
+
+	client, err := newAPIClient(cmd)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	workspaceID, err := requireWorkspaceID(cmd)
+	if err != nil {
+		return err
+	}
+
+	path := "/api/workspaces/" + workspaceID + "/group-bindings?entity_type=" + entityType
+	var bindings []map[string]any
+	if err := client.GetJSON(ctx, path, &bindings); err != nil {
+		return fmt.Errorf("list bindings: %w", err)
+	}
+
+	if output == "json" {
+		return json.NewEncoder(os.Stdout).Encode(bindings)
+	}
+
+	if len(bindings) == 0 {
+		fmt.Fprintln(os.Stdout, "No bindings found.")
+		return nil
+	}
+
+	fmt.Fprintf(os.Stdout, "%-38s  %-10s  %-38s  %-20s  %s\n", "ENTITY_ID", "TYPE", "IM_GROUP_ID", "GROUP_NAME", "CREATED")
+	for _, b := range bindings {
+		entityID, _ := b["entity_id"].(string)
+		etype, _ := b["entity_type"].(string)
+		groupID, _ := b["im_group_id"].(string)
+		groupName, _ := b["im_group_name"].(string)
+		created, _ := b["created_at"].(string)
+		if len(created) > 19 {
+			created = created[:19]
+		}
+		fmt.Fprintf(os.Stdout, "%-38s  %-10s  %-38s  %-20s  %s\n", entityID, etype, groupID, groupName, created)
+	}
+	return nil
+}
+
+func runBindingGet(cmd *cobra.Command, _ []string) error {
+	issueID, _ := cmd.Flags().GetString("issue-id")
+	output, _ := cmd.Flags().GetString("output")
+
+	client, err := newAPIClient(cmd)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	// Resolve issue to get workspace_id
+	var issue map[string]any
+	if err := client.GetJSON(ctx, "/api/issues/"+issueID, &issue); err != nil {
+		return fmt.Errorf("get issue %q: %w", issueID, err)
+	}
+	workspaceID, _ := issue["workspace_id"].(string)
+	if workspaceID == "" {
+		return fmt.Errorf("could not determine workspace_id from issue %q", issueID)
+	}
+	entityID, _ := issue["id"].(string)
+
+	// Query the binding
+	path := "/api/workspaces/" + workspaceID + "/issues/" + entityID + "/im-group"
+	var result map[string]any
+	if err := client.GetJSON(ctx, path, &result); err != nil {
+		return fmt.Errorf("get binding: %w", err)
+	}
+
+	if output == "json" {
+		return json.NewEncoder(os.Stdout).Encode(result)
+	}
+
+	groupID, _ := result["im_group_id"].(string)
+	groupName, _ := result["im_group_name"].(string)
+	fmt.Fprintf(os.Stdout, "Issue      : %s (%s)\n", issueID, entityID)
+	fmt.Fprintf(os.Stdout, "Group ID   : %s\n", groupID)
+	fmt.Fprintf(os.Stdout, "Group Name : %s\n", groupName)
 	return nil
 }
 
