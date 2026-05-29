@@ -68,11 +68,18 @@ func runBindingCreate(cmd *cobra.Command, _ []string) error {
 	if workspaceID == "" {
 		return fmt.Errorf("could not determine workspace_id from issue %q", issueID)
 	}
+	// --issue-id accepts either a UUID or a human-readable ref (e.g. MUL-123).
+	// Bind on the canonical UUID returned by the API, never the raw input, so
+	// downstream lookups by UUID resolve.
+	entityID, _ := issue["id"].(string)
+	if entityID == "" {
+		return fmt.Errorf("could not determine issue UUID from issue %q", issueID)
+	}
 
 	// Step 2: write the binding.
 	payload := map[string]any{
 		"entity_type":   "issue",
-		"entity_id":     issueID,
+		"entity_id":     entityID,
 		"im_group_id":   groupID,
 		"im_group_name": groupName,
 		"type_id":       0,
